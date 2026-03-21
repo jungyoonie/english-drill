@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./drill-manifest.json">
+<title>영어 드릴</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --orange: #d29922;
+    --gold: #f0c000;
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 헤더 */
+  .header { margin-bottom: 20px; }
+  .header h1 { font-size: 1.4em; margin-bottom: 4px; }
+  .header .subtitle { font-size: 0.85em; color: var(--text-dim); }
+
+  /* 탭 */
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 16px;
+    background: var(--card); border-radius: 8px; padding: 4px;
+  }
+  .tab {
+    flex: 1; padding: 8px; border-radius: 6px; cursor: pointer;
+    font-size: 0.85em; font-weight: 600; color: var(--text-dim);
+    border: none; background: none; text-align: center; transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--accent); color: #fff; }
+
+  /* 모드 탭 */
+  .mode-tabs {
+    display: flex; gap: 4px; margin-bottom: 16px;
+    background: var(--card); border-radius: 8px; padding: 4px;
+  }
+  .mode-tab {
+    flex: 1; padding: 6px 8px; border-radius: 6px; cursor: pointer;
+    font-size: 0.8em; font-weight: 600; color: var(--text-dim);
+    border: none; background: none; text-align: center; transition: all 0.2s;
+  }
+  .mode-tab:hover { color: var(--text); }
+  .mode-tab.active { background: var(--purple); color: #fff; }
+
+  /* 요약 카드 */
+  .summary {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; text-align: center;
+  }
+  .stat-card .value { font-size: 1.5em; font-weight: 700; }
+  .stat-card .label { font-size: 0.7em; color: var(--text-dim); margin-top: 2px; }
+
+  /* 카드 영역 */
+  .card-area {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 16px;
+    min-height: 280px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+  }
+  .card-category {
+    font-size: 0.75em; color: var(--accent); margin-bottom: 12px;
+    padding: 4px 10px; background: rgba(88,166,255,0.1);
+    border-radius: 12px; display: inline-block;
+  }
+  .card-sentence {
+    font-size: 1.2em; line-height: 1.6; margin-bottom: 20px;
+    word-break: keep-all;
+  }
+  .card-sentence .blank {
+    display: inline-block; min-width: 80px; border-bottom: 2px solid var(--accent);
+    margin: 0 4px; color: var(--accent);
+  }
+  .card-sentence .wrong-mark { color: var(--red); text-decoration: line-through; }
+  .card-korean { font-size: 1.1em; color: var(--text); line-height: 1.5; margin-bottom: 20px; }
+
+  /* 보기 버튼 */
+  .options { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .opt-btn {
+    padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); color: var(--text); font-size: 0.95em;
+    cursor: pointer; transition: all 0.15s; text-align: left;
+  }
+  .opt-btn:hover { border-color: var(--accent); }
+  .opt-btn:active { transform: scale(0.98); }
+  .opt-btn.correct { border-color: var(--green); background: rgba(63,185,80,0.15); color: var(--green); }
+  .opt-btn.wrong { border-color: var(--red); background: rgba(248,81,73,0.15); color: var(--red); }
+
+  /* 피드백 */
+  .feedback {
+    width: 100%; margin-top: 16px; padding: 16px;
+    border-radius: 10px; text-align: left; font-size: 0.9em; line-height: 1.6;
+  }
+  .feedback.correct-fb { background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.3); }
+  .feedback.wrong-fb { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); }
+  .feedback .fb-label { font-weight: 700; margin-bottom: 6px; }
+  .feedback .fb-correct { color: var(--green); }
+  .feedback .fb-wrong { color: var(--red); }
+  .feedback .fb-hint { color: var(--text-dim); margin-top: 6px; font-size: 0.85em; }
+
+  /* 다음 버튼 */
+  .next-btn {
+    margin-top: 12px; padding: 12px 32px; border-radius: 10px;
+    border: none; background: var(--accent); color: #fff;
+    font-size: 0.95em; font-weight: 600; cursor: pointer;
+  }
+  .next-btn:active { opacity: 0.8; }
+
+  /* 진행률 */
+  .progress-bar {
+    background: var(--card); border-radius: 8px; height: 6px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent); border-radius: 8px;
+    transition: width 0.3s;
+  }
+  .progress-text {
+    font-size: 0.8em; color: var(--text-dim); text-align: center; margin-bottom: 8px;
+  }
+
+  /* 통계 */
+  .stats-section {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  }
+  .stats-section h2 { font-size: 0.9em; color: var(--text-dim); margin-bottom: 10px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stats-item { font-size: 0.85em; }
+  .stats-item .s-value { font-weight: 700; font-size: 1.1em; }
+  .stats-item .s-label { color: var(--text-dim); font-size: 0.8em; }
+
+  /* 빈 상태 */
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: var(--text-dim);
+  }
+  .empty-state .emoji { font-size: 2em; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9em; line-height: 1.5; }
+
+  /* 설정 버튼 */
+  .reset-btn {
+    display: block; margin: 20px auto; padding: 8px 16px;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: none; color: var(--text-dim); font-size: 0.8em; cursor: pointer;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .hidden { display: none; }
+
+  @media (max-width: 360px) {
+    body { padding: 10px; }
+    .card-sentence { font-size: 1em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>오늘의 학습</h1>
+  <div class="subtitle" id="today-info"></div>
+</div>
+
+<div class="tabs" id="lang-tabs">
+  <button class="tab active" onclick="switchLang('english')">English</button>
+  <button class="tab" onclick="switchLang('japanese')">日本語</button>
+</div>
+
+<div class="summary" id="summary"></div>
+
+<div class="mode-tabs" id="mode-tabs">
+  <button class="mode-tab active" onclick="switchMode('fill')">빈칸 채우기</button>
+  <button class="mode-tab" onclick="switchMode('fix')">문장 고치기</button>
+  <button class="mode-tab" onclick="switchMode('translate')">한→영 번역</button>
+</div>
+
+<div class="progress-text" id="progress-text"></div>
+<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+<div class="card-area" id="card-area"></div>
+
+<div class="stats-section" id="stats-section"></div>
+
+<button class="reset-btn" onclick="resetProgress()">학습 기록 초기화</button>
+
+<script>
+// ============================================================
+// 드릴 데이터 — 수업 분석 시 Claude가 업데이트합니다
+// ============================================================
+const DRILL_DATA = {
+  english: {
+    categories: [
+      {
+        id: "plural-article",
+        name: "복수형 / 관사",
+        severity: "high",
+        rule: "일반적 → 복수, 관사 X / 특정 → the / 단수 → a/an / 악기 → the",
+        cards: [
+          { type: "fix", wrong: "I like a romance movie.", correct: "I like romance movies.", distractors: ["I like a romance movies.", "I like the romance movie."], hint: "장르 일반론 → 복수, 관사 X", source: "3/6" },
+          { type: "fill", sentence: "There are so many _____.", answer: "smartphones", options: ["smartphone", "smartphones", "a smartphone"], hint: "many + 복수명사" },
+          { type: "translate", korean: "나는 로맨스 영화를 좋아해.", answer: "I like romance movies.", distractors: ["I like a romance movie.", "I like the romance movies."], hint: "장르 일반론 → 복수, 관사 X" },
+          { type: "fix", wrong: "a lot of fun movie", correct: "a lot of fun movies", distractors: ["a lot of fun a movie", "a lot of the fun movie"], hint: "a lot of + 복수명사", source: "3/3" },
+          { type: "fix", wrong: "I like dessert that based on chocolate.", correct: "I like desserts that are based on chocolate.", distractors: ["I like dessert that is based on chocolate.", "I like desserts that based on chocolate."], hint: "복수형 + 관계절에 be동사", source: "3/9" },
+          { type: "fill", sentence: "I cannot play _____ piano.", answer: "the", options: ["a", "the", "(없음)"], hint: "악기 앞에 the 필수" },
+          { type: "fix", wrong: "collecting post stamp", correct: "collecting stamps", distractors: ["collecting post stamps", "collecting a stamp"], hint: "복수형: stamps", source: "3/10" },
+          { type: "fix", wrong: "credit card has more benefit", correct: "credit card has more benefits", distractors: ["credit card has more the benefit", "credit card has a more benefit"], hint: "복수형: benefits", source: "3/10" },
+          { type: "translate", korean: "나는 피아노를 칠 수 없어.", answer: "I cannot play the piano.", distractors: ["I cannot play piano.", "I cannot play a piano."], hint: "악기 앞에 the 필수" },
+          { type: "fill", sentence: "go to _____ cafe", answer: "a", options: ["a", "the", "(없음)"], hint: "셀 수 있는 단수 명사 → 관사 필수" },
+          { type: "fix", wrong: "I have younger brother.", correct: "I have a younger brother.", distractors: ["I have the younger brother.", "I have younger brothers."], hint: "셀 수 있는 단수 명사 → 관사 a 필수", source: "3/11" },
+          { type: "fix", wrong: "I can speak three language.", correct: "I can speak three languages.", distractors: ["I can speak three language's.", "I can speak a three languages."], hint: "숫자 + 복수명사", source: "3/11" },
+          { type: "fix", wrong: "There are so many festival for cherry blossom.", correct: "There are so many festivals for cherry blossoms.", distractors: ["There are so many festival for cherry blossoms.", "There are so many festivals for cherry blossom."], hint: "many + 복수명사", source: "3/12" },
+          { type: "fix", wrong: "a lot of lunch class", correct: "a lot of lunch classes", distractors: ["a lot of lunch a class", "a lot of the lunch class"], hint: "a lot of + 복수명사", source: "3/13" },
+          { type: "fix", wrong: "kinds of a kind of instruments", correct: "different kinds of instruments", distractors: ["a kinds of instruments", "kind of a instruments"], hint: "kinds of + 복수명사", source: "3/13" },
+          { type: "fix", wrong: "there is songs that named Aroha", correct: "there is a song that is named Aroha", distractors: ["there is songs that is named Aroha", "there are a song that named Aroha"], hint: "단수 → a song + is named (수동태)", source: "3/13" },
+          { type: "fix", wrong: "My place is near subway station.", correct: "My place is near a subway station.", distractors: ["My place is near the subway station.", "My place is near subway stations."], hint: "셀 수 있는 단수 명사 → 관사 a 필수", source: "3/16" },
+          { type: "fix", wrong: "What kinds of vegetable do you like?", correct: "What kind of vegetables do you like?", distractors: ["What kind of vegetable do you like?", "What kinds of vegetables do you like?"], hint: "what kind of (kind 단수) + 일반적 → 복수", source: "3/16" },
+          { type: "fix", wrong: "I don't eat cookie these days.", correct: "I don't eat cookies these days.", distractors: ["I don't eat a cookie these days.", "I don't eat the cookies these days."], hint: "일반적 → 복수 (cookie→cookies)", source: "3/18" },
+          { type: "fix", wrong: "The other is so dangerous.", correct: "The others are so dangerous.", distractors: ["The other are so dangerous.", "The others is so dangerous."], hint: "여러 개 → the others + are", source: "3/18" },
+          { type: "fix", wrong: "I went to Philippines.", correct: "I went to the Philippines.", distractors: ["I went to a Philippines.", "I went to Philippines country."], hint: "섬나라/연합국 → the 필수 (the Philippines, the US)", source: "3/20" },
+          { type: "fix", wrong: "I transferred to boat.", correct: "I transferred to a boat.", distractors: ["I transferred to the boat.", "I transferred boat."], hint: "셀 수 있는 단수 명사 → 관사 a 필수", source: "3/20" },
+          { type: "fix", wrong: "There are a lot of beach.", correct: "There are a lot of beaches.", distractors: ["There are a lot of beach's.", "There is a lot of beaches."], hint: "a lot of + 복수명사", source: "3/20" }
+        ]
+      },
+      {
+        id: "preposition",
+        name: "전치사",
+        severity: "high",
+        rule: "travel to + 장소 / on weekends / live in / at home (the X) / refund on",
+        cards: [
+          { type: "fix", wrong: "I traveled New Zealand.", correct: "I traveled to New Zealand.", distractors: ["I traveled in New Zealand.", "I traveled at New Zealand."], hint: "travel to + 장소", source: "3/3" },
+          { type: "fill", sentence: "I usually go hiking _____ weekends.", answer: "on", options: ["in", "on", "at"], hint: "요일/주말 = on" },
+          { type: "fix", wrong: "I prefer to live the countryside.", correct: "I prefer to live in the countryside.", distractors: ["I prefer to live at the countryside.", "I prefer to live on the countryside."], hint: "live in + 장소", source: "3/3" },
+          { type: "fix", wrong: "I can release for my stress.", correct: "I can release my stress.", distractors: ["I can release on my stress.", "I can release about my stress."], hint: "release + 목적어 직접 (전치사 불필요)", source: "3/10" },
+          { type: "translate", korean: "나는 이 상품을 환불받고 싶어.", answer: "I'd like to get a refund on this item.", distractors: ["I'd like to get a refund for this item.", "I'd like to get a refund of this item."], hint: "refund on + 품목" },
+          { type: "fill", sentence: "I usually stay _____ home.", answer: "at", options: ["at", "at the", "in"], hint: "home 앞에 the X" },
+          { type: "fix", wrong: "I stayed there in the summer clothes.", correct: "I stayed there in summer clothes.", distractors: ["I stayed there in a summer clothes.", "I stayed there on summer clothes."], hint: "일반적 옷 → the 불필요", source: "3/10" },
+          { type: "fix", wrong: "I can't wait to drink wine with Han River.", correct: "I can't wait to drink wine with a view of the Han River.", distractors: ["I can't wait to drink wine with beautiful Han River.", "I can't wait to drink wine in Han River."], hint: "with a view of ~ (경치와 함께)", source: "3/12" },
+          { type: "fix", wrong: "I went to camping near the river.", correct: "I went camping near the river.", distractors: ["I went to go camping near the river.", "I went for camping near the river."], hint: "go/went + 활동(-ing)에 to 불필요", source: "3/12" },
+          { type: "fix", wrong: "someone who lies me", correct: "someone who lies to me", distractors: ["someone who lies at me", "someone who lies for me"], hint: "lie + to + 사람", source: "3/13" },
+          { type: "fix", wrong: "I tried to go appointment.", correct: "I tried to go to an appointment.", distractors: ["I tried to go an appointment.", "I tried to go at appointment."], hint: "go to + 장소, 단수 → an appointment", source: "3/13" },
+          { type: "translate", korean: "나에게 거짓말하는 사람은 싫어.", answer: "I don't like someone who lies to me.", distractors: ["I don't like someone who lies me.", "I don't like someone who lie to me."], hint: "lie + to + 사람" },
+          { type: "fix", wrong: "I stay at the park in the weekend.", correct: "I stay at the park on the weekend.", distractors: ["I stay at the park at the weekend.", "I stay at the park by the weekend."], hint: "주말/요일 = on (in X)", source: "3/16" },
+          { type: "fix", wrong: "I just send our my exercise teacher.", correct: "I just send them to my exercise teacher.", distractors: ["I just send my exercise teacher.", "I just send for my exercise teacher."], hint: "send + 목적어 + to + 사람", source: "3/16" },
+          { type: "fix", wrong: "I takes 20 minutes to my office by foots.", correct: "It takes 20 minutes to my office on foot.", distractors: ["I takes 20 minutes to my office by foot.", "It take 20 minutes to my office on foots."], hint: "It takes + 시간 (주어 It!) / on foot (관용표현, 복수X)", source: "3/16 연습" },
+          { type: "fix", wrong: "I'm planning to travel Shanghai.", correct: "I'm planning to travel to Shanghai.", distractors: ["I'm planning to travel in Shanghai.", "I'm planning to travel at Shanghai."], hint: "travel to + 장소 (to 필수!) — 반복 실수", source: "3/18" },
+          { type: "fix", wrong: "She was supposed to go business trip.", correct: "She was supposed to go on a business trip.", distractors: ["She was supposed to go to business trip.", "She was supposed to go a business trip."], hint: "go on a business trip (on 필수)", source: "3/19" },
+          { type: "translate", korean: "나는 문자를 전화보다 선호해.", answer: "I prefer texting to calling.", distractors: ["I prefer texting than calling.", "I prefer texting over calling."], hint: "prefer A to B", source: "3/19" },
+          { type: "fix", wrong: "This is a map for the world.", correct: "This is a map of the world.", distractors: ["This is a map in the world.", "This is a map to the world."], hint: "map of the world (~의 지도)", source: "3/20" },
+          { type: "fix", wrong: "I don't get up at time.", correct: "I don't get up on time.", distractors: ["I don't get up in time.", "I don't get up by time."], hint: "on time = 제시간에 (관용표현)", source: "3/20" },
+          { type: "fix", wrong: "It's about 20 minutes by work.", correct: "It's about 20 minutes on foot.", distractors: ["It's about 20 minutes by foot.", "It's about 20 minutes in walk."], hint: "on foot = 걸어서 (by work X)", source: "3/16" }
+        ]
+      },
+      {
+        id: "be-verb",
+        name: "be동사 누락",
+        severity: "high",
+        rule: "형용사 앞에 be동사 필수 / 동사 누락 주의",
+        cards: [
+          { type: "fix", wrong: "My body very stiff.", correct: "My body is very stiff.", distractors: ["My body very is stiff.", "My body are very stiff."], hint: "형용사 앞에 be동사 필수", source: "3/3" },
+          { type: "fix", wrong: "I cannot well.", correct: "I can't do it well.", distractors: ["I cannot good.", "I can't well do."], hint: "동사 누락 — 뭘 잘 못하는지 명시", source: "3/3" },
+          { type: "fix", wrong: "I usually in my home.", correct: "I usually stay at home.", distractors: ["I usually am in my home.", "I usually in at home."], hint: "동사 누락 — stay/live 등 필요", source: "3/3" },
+          { type: "translate", korean: "내 몸이 매우 뻣뻣해.", answer: "My body is very stiff.", distractors: ["My body very stiff.", "My body is very stiffed."], hint: "형용사 앞에 be동사 필수" },
+          { type: "fill", sentence: "My legs _____ sore.", answer: "are", options: ["are", "(없음)", "is"], hint: "형용사 앞에 be동사 필수" },
+          { type: "fix", wrong: "I'm like sweet desserts.", correct: "I like sweet desserts.", distractors: ["I'm liking sweet desserts.", "I'm liked sweet desserts."], hint: "like이 동사일 때 be동사 불필요", source: "3/13" },
+          { type: "fix", wrong: "I tried to not late.", correct: "I try not to be late.", distractors: ["I tried not to late.", "I try to not be late."], hint: "not to be + 형용사 (be 필수)", source: "3/13" },
+          { type: "fix", wrong: "when I college, I studied hard.", correct: "when I was in college, I studied hard.", distractors: ["when I in college, I studied hard.", "when I am college, I studied hard."], hint: "was in college (be동사 + 전치사 필수)", source: "3/13" },
+          { type: "translate", korean: "나는 늦지 않으려고 노력해.", answer: "I try not to be late.", distractors: ["I tried to not late.", "I try to not be late."], hint: "try not to be + 형용사" },
+          { type: "fix", wrong: "If I fat, I get stressed.", correct: "If I'm fat, I get stressed.", distractors: ["If I be fat, I get stressed.", "If I am fat, I getting stressed."], hint: "형용사 앞에 be동사 필수 (I'm fat)", source: "3/19" },
+          { type: "fill", sentence: "If she _____ tired, she takes a nap.", answer: "is", options: ["(없음)", "is", "be"], hint: "형용사 앞에 be동사 필수" },
+          { type: "fix", wrong: "Why aren't you wake up?", correct: "Why don't you wake up?", distractors: ["Why isn't you wake up?", "Why aren't you waking up?"], hint: "일반동사 부정 의문문 → don't (be동사 X)", source: "3/20" }
+        ]
+      },
+      {
+        id: "subject-verb",
+        name: "주어-동사 수일치",
+        severity: "high",
+        rule: "단수 주어 → 동사+s / 복수 주어 → 동사원형",
+        cards: [
+          { type: "fix", wrong: "My country need mandatory recycling.", correct: "My country needs mandatory recycling.", distractors: ["My country needing mandatory recycling.", "My country need a mandatory recycling."], hint: "단수 주어 → 동사+s", source: "3/9" },
+          { type: "fix", wrong: "How long have she been seeing?", correct: "How long has she been seeing?", distractors: ["How long have she been see?", "How long is she been seeing?"], hint: "3인칭 단수 → has", source: "3/10" },
+          { type: "fix", wrong: "Credit cards has more benefits.", correct: "Credit cards have more benefits.", distractors: ["Credit cards having more benefits.", "Credit card has more benefits."], hint: "복수 주어 cards → have", source: "3/10 연습" },
+          { type: "fill", sentence: "My country _____ mandatory recycling.", answer: "needs", options: ["need", "needs", "needing"], hint: "단수 주어 → 동사+s" },
+          { type: "translate", korean: "우리나라는 의무 재활용이 필요해.", answer: "My country needs mandatory recycling.", distractors: ["My country need mandatory recycling.", "My country is need mandatory recycling."], hint: "단수 주어 → 동사+s" },
+          { type: "fix", wrong: "My friend always lie to me.", correct: "My friend always lies to me.", distractors: ["My friend always lied to me.", "My friend always lying to me."], hint: "3인칭 단수 → lies", source: "3/13 연습" },
+          { type: "translate", korean: "어제 뭐가 너를 늦게 만들었어?", answer: "What made you late?", distractors: ["What did you make late?", "What makes you late?"], hint: "What이 주어 → What made you (과거)", source: "3/13 연습" },
+          { type: "fix", wrong: "She have never been to London.", correct: "She has never been to London.", distractors: ["She have never been in London.", "She has never gone to London."], hint: "3인칭 단수 → has (have X)", source: "3/18" }
+        ]
+      },
+      {
+        id: "to-gerund",
+        name: "to + 동사원형 vs 동명사",
+        severity: "high",
+        rule: "to + 동사원형 또는 동명사. to + -ing는 불가!",
+        cards: [
+          { type: "fix", wrong: "I like to shopping at the online stores.", correct: "I like shopping online.", distractors: ["I like to shopping online.", "I like to shops online."], hint: "to + -ing 불가! to shop 또는 shopping", source: "3/10" },
+          { type: "fix", wrong: "I don't like to yoga.", correct: "I don't like doing yoga.", distractors: ["I don't like to yogaing.", "I don't like yoga do."], hint: "to + 동사원형 또는 동명사", source: "3/3" },
+          { type: "fill", sentence: "I like _____ online.", answer: ["shopping", "to shop"], options: ["to shopping", "shopping", "to shop"], hint: "to + -ing 불가 (shopping과 to shop 둘 다 OK)" },
+          { type: "translate", korean: "나는 온라인 쇼핑하는 걸 좋아해.", answer: "I like shopping online.", distractors: ["I like to shopping online.", "I like shop online."], hint: "to + -ing 불가" },
+          { type: "fix", wrong: "I don't like read books.", correct: "I don't like reading books.", distractors: ["I don't like to reading books.", "I don't like book reading."], hint: "like + 동명사 또는 like + to + 동사원형", source: "3/12" },
+          { type: "fix", wrong: "I like to walking around.", correct: "I like walking around.", distractors: ["I like to walk around.", "I like to walks around."], hint: "to + -ing 불가! walking 또는 to walk", source: "3/12" },
+          { type: "fix", wrong: "That's why I like go camping.", correct: "That's why I like going camping.", distractors: ["That's why I like to go camping.", "That's why I like camp going."], hint: "like + -ing", source: "3/12" },
+          { type: "fix", wrong: "It's easy to singing together.", correct: "It's easy to sing together.", distractors: ["It's easy singing together.", "It's easy to sang together."], hint: "to + 동사원형 (to + -ing 불가)", source: "3/13" },
+          { type: "fill", sentence: "This song is easy to _____ together.", answer: "sing", options: ["singing", "sing", "sang"], hint: "to + 동사원형" },
+          { type: "fix", wrong: "I don't like any sports to watching.", correct: "I don't like to watch any sports.", distractors: ["I don't like any sports watching.", "I don't like to watching any sports."], hint: "to + 동사원형 (to + -ing 불가) + 어순", source: "3/20" },
+          { type: "fix", wrong: "I want to be good at swim.", correct: "I want to be good at swimming.", distractors: ["I want to be good at to swim.", "I want to be good at swims."], hint: "good at + -ing (동명사 필수)", source: "3/20" }
+        ]
+      },
+      {
+        id: "noun-verb-adj",
+        name: "명사 / 동사 / 형용사 구분",
+        severity: "mid",
+        rule: "success(명) / succeed(동) / successful(형) / luck(명) / lucky(형)",
+        cards: [
+          { type: "fix", wrong: "there is lucky", correct: "there is luck", distractors: ["there are lucky", "there is luckily"], hint: "lucky(형용사) vs luck(명사)", source: "3/6" },
+          { type: "fix", wrong: "I want to success.", correct: "I want to succeed.", distractors: ["I want to successful.", "I want success to."], hint: "success(명사) vs succeed(동사)", source: "3/6" },
+          { type: "fix", wrong: "It depends on my necessary.", correct: "It depends on my needs.", distractors: ["It depends on my necessity.", "It depends on my necessarily."], hint: "necessary(형용사) vs needs(명사)", source: "3/10" },
+          { type: "fill", sentence: "I want to _____.", answer: "succeed", options: ["success", "succeed", "successful"], hint: "to + 동사원형" },
+          { type: "translate", korean: "그것은 내 필요에 따라 달라.", answer: "It depends on my needs.", distractors: ["It depends on my necessary.", "It depends on my need."], hint: "necessary(형용사) vs needs(명사)" },
+          { type: "fix", wrong: "It was very extremely.", correct: "It was very extreme.", distractors: ["It was very extremed.", "It was very extremeness."], hint: "extreme(형용사) vs extremely(부사). very+형용사!", source: "3/18" },
+          { type: "fix", wrong: "I tried to meditation every morning.", correct: "I tried to meditate every morning.", distractors: ["I tried to meditationing every morning.", "I tried meditation every morning."], hint: "to + 동사원형 (meditation은 명사, meditate가 동사)", source: "3/19" },
+          { type: "fill", sentence: "The best way to _____ stress is exercise.", answer: "relieve", options: ["relief", "relieve", "relieving"], hint: "to + 동사원형. relief(명사) vs relieve(동사)", source: "3/19" },
+          { type: "fix", wrong: "I want to relax in a silence place.", correct: "I want to relax in a quiet place.", distractors: ["I want to relax in a silent place.", "I want to relax in a quietly place."], hint: "quiet=조용한 환경, silent=소리 안 내는 사람/물체", source: "3/19" },
+          { type: "fix", wrong: "Chocolate is the most fat food.", correct: "Chocolate is the most fattening food.", distractors: ["Chocolate is the most fatty food.", "Chocolate is the most fatter food."], hint: "fattening=살찌게 하는, fat=뚱뚱한(사람)", source: "3/19" },
+          { type: "fix", wrong: "I leave alone in Tokyo.", correct: "I live alone in Tokyo.", distractors: ["I leaving alone in Tokyo.", "I lived alone in Tokyo."], hint: "live=살다, leave=떠나다 (발음/스펠링 주의!)", source: "3/20" }
+        ]
+      },
+      {
+        id: "tense",
+        name: "시제",
+        severity: "mid",
+        rule: "현재 습관 → 현재시제 / 과거~현재 지속 → 현재완료진행",
+        cards: [
+          { type: "fix", wrong: "I tried to do not drink coffee recently.", correct: "I have been trying not to drink coffee recently.", distractors: ["I tried not to drink coffee recently.", "I am tried not to drink coffee recently."], hint: "과거~현재 지속 → 현재완료진행", source: "3/9" },
+          { type: "fix", wrong: "I just stayed at home. (현재 습관)", correct: "I just stay at home.", distractors: ["I just have stayed at home.", "I just staying at home."], hint: "현재 습관 → 현재시제", source: "3/9" },
+          { type: "fill", sentence: "I _____ trying not to drink coffee recently.", answer: "have been", options: ["was", "have been", "am"], hint: "과거~현재 지속 → 현재완료진행" },
+          { type: "translate", korean: "요즘 커피를 안 마시려고 노력 중이야.", answer: "I have been trying not to drink coffee recently.", distractors: ["I tried to not drink coffee recently.", "I am trying to not drink coffee recently."], hint: "과거~현재 지속 → 현재완료진행" },
+          { type: "fix", wrong: "I've been to Miami last year.", correct: "I went to Miami last year.", distractors: ["I've gone to Miami last year.", "I was been to Miami last year."], hint: "과거 사실 → went. have been to = 경험", source: "3/10 연습" },
+          { type: "fix", wrong: "I saw it once every year.", correct: "I see it once every year.", distractors: ["I have seen it once every year.", "I seeing it once every year."], hint: "현재 습관/반복 → 현재시제", source: "3/11" },
+          { type: "fix", wrong: "What makes you late?", correct: "What made you late?", distractors: ["What make you late?", "What is makes you late?"], hint: "이미 지각한 상황 → 과거시제 made", source: "3/11" },
+          { type: "fix", wrong: "Every time I forgot it.", correct: "Every time I forget it.", distractors: ["Every time I have forgot it.", "Every time I forgetting it."], hint: "현재 습관/반복 → 현재시제", source: "3/11" },
+          { type: "translate", korean: "매번 깜빡해.", answer: "I forget it every time.", distractors: ["I forgot it every time.", "I am forgetting it every time."], hint: "현재 습관 → 현재시제 forget" },
+          { type: "fix", wrong: "I have been to go camping five years ago.", correct: "I went camping five years ago.", distractors: ["I have gone to camping five years ago.", "I have been camping for five years ago."], hint: "과거 사실 → went. been+go 중복X", source: "3/12" },
+          { type: "fix", wrong: "I always preparing something for picnic.", correct: "I always prepare something for a picnic.", distractors: ["I always am preparing something for picnic.", "I always prepared something for picnic."], hint: "습관 → always + 단순현재", source: "3/12" }
+        ]
+      },
+      {
+        id: "adverb-position",
+        name: "부사 위치",
+        severity: "mid",
+        rule: "don't + 부사 + 동사",
+        cards: [
+          { type: "fix", wrong: "I don't watch movies usually.", correct: "I don't usually watch movies.", distractors: ["I usually don't watch movies.", "I don't watch usually movies."], hint: "don't + 부사 + 동사", source: "3/6" },
+          { type: "fix", wrong: "I usually don't use phone call.", correct: "I don't usually make phone calls.", distractors: ["I don't usually use phone call.", "I usually don't make phone call."], hint: "don't + usually + 동사 + make phone calls", source: "3/6" },
+          { type: "fill", sentence: "I don't _____ watch movies.", answer: "usually", options: ["usually", "(끝에 usually)", "(없음)"], hint: "don't + 부사 + 동사" },
+          { type: "fix", wrong: "I don't like that much reading books.", correct: "I don't like reading books that much.", distractors: ["I don't like reading books much that.", "I don't that much like reading books."], hint: "that much는 문장 끝에", source: "3/18" }
+        ]
+      },
+      {
+        id: "word-order",
+        name: "어순",
+        severity: "mid",
+        rule: "the end of ~ / once every + 기간",
+        cards: [
+          { type: "fix", wrong: "last year of the end, December", correct: "the end of last year, December", distractors: ["last year's end of, December", "of the end last year, December"], hint: "'~의 끝' = the end of ~", source: "3/10" },
+          { type: "fix", wrong: "three months at one time", correct: "once every three months", distractors: ["one time three months", "every three months one time"], hint: "빈도 = once every + 기간", source: "3/10" },
+          { type: "translate", korean: "나는 3개월마다 옷을 사.", answer: "I buy clothes once every three months.", distractors: ["I buy clothes three months at one time.", "I buy clothes every once three months."], hint: "빈도 = once every + 기간" },
+          { type: "fix", wrong: "I like more spring.", correct: "I like spring more.", distractors: ["I more like spring.", "I like spring much."], hint: "비교급 수식어(more/better)는 뒤에", source: "3/12" },
+          { type: "translate", korean: "나는 봄을 더 좋아해.", answer: "I like spring more.", distractors: ["I like more spring.", "I more like spring."], hint: "I like A more / I like A better" },
+          { type: "fix", wrong: "I like summer more than spring. (봄이 더 좋은데)", correct: "I like spring more than summer.", distractors: ["I like more spring than summer.", "I spring like more than summer."], hint: "비교문: 좋아하는 것을 먼저 (A more than B)", source: "3/12 연습" },
+          { type: "fix", wrong: "I want to live with a large kitchen house.", correct: "I want to live in a house with a large kitchen.", distractors: ["I want to live a house with a large kitchen.", "I want to live with a large kitchen in house."], hint: "수식어(with ~)는 명사 뒤에", source: "3/16" },
+          { type: "fix", wrong: "I try to not eat sweets.", correct: "I try not to eat sweets.", distractors: ["I try not eat sweets.", "I not try to eat sweets."], hint: "try not to + 동사원형 (not의 위치)", source: "3/20" },
+          { type: "fix", wrong: "On my own way I might go home.", correct: "On my way home, I saw a cat.", distractors: ["On my own way home, I saw a cat.", "In my way home, I saw a cat."], hint: "on my way home = 집에 가는 길에 (own 불필요)", source: "3/20" },
+          { type: "fix", wrong: "I can play snorkeling.", correct: "I can go snorkeling.", distractors: ["I can do snorkeling.", "I can play snorkel."], hint: "활동 = go + -ing (play는 구기 스포츠만)", source: "3/20" },
+          { type: "fix", wrong: "Someone must have been called the police.", correct: "Someone must have called the police.", distractors: ["Someone must called the police.", "Someone must have call the police."], hint: "must have + p.p. (been 불필요)", source: "3/20" }
+        ]
+      },
+      {
+        id: "would-rather",
+        name: "would rather",
+        severity: "mid",
+        rule: "would rather + 동사원형 (to X!)",
+        cards: [
+          { type: "fix", wrong: "I would rather to cook.", correct: "I would rather cook.", distractors: ["I would rather cooking.", "I would rather to cooking."], hint: "would rather + 동사원형 (to X!)", source: "3/3" },
+          { type: "fix", wrong: "I would rather a campsite.", correct: "I would rather spend a day at a campsite.", distractors: ["I would rather to a campsite.", "I would rather going a campsite."], hint: "would rather + 동사 필수", source: "3/3" },
+          { type: "fill", sentence: "I would rather _____ at home.", answer: "stay", options: ["to stay", "stay", "staying"], hint: "would rather + 동사원형" },
+          { type: "translate", korean: "나는 차라리 집에서 TV를 보겠어.", answer: "I would rather stay at home and watch TV.", distractors: ["I would rather to stay at home and watch TV.", "I would rather staying at home and watching TV."], hint: "would rather + 동사원형" },
+          { type: "fix", wrong: "I would rather to cook at home.", correct: "I would rather cook at home.", distractors: ["I would rather cooking at home.", "I would rather to cooking at home."], hint: "would rather + 동사원형 (to X!) — 반복 실수!", source: "3/16 연습" }
+        ]
+      },
+      {
+        id: "double-comparative",
+        name: "이중 비교급",
+        severity: "high",
+        rule: "1음절 → -er (more 불필요) / 이미 -er이면 more 금지",
+        cards: [
+          { type: "fix", wrong: "The period is more short.", correct: "The period is shorter.", distractors: ["The period is more shorter.", "The period is most short."], hint: "1음절 → -er (more short X)", source: "3/11" },
+          { type: "fix", wrong: "My level is more higher.", correct: "My level is higher.", distractors: ["My level is most higher.", "My level is more high."], hint: "이미 -er이면 more 불필요", source: "3/11" },
+          { type: "fix", wrong: "Milk chocolate is more closer to non-chocolate.", correct: "Milk chocolate is closer to non-chocolate.", distractors: ["Milk chocolate is most closer to non-chocolate.", "Milk chocolate is more close to non-chocolate."], hint: "이미 -er이면 more 불필요", source: "3/11" },
+          { type: "fill", sentence: "This road is _____ than that one.", answer: "shorter", options: ["more short", "shorter", "more shorter"], hint: "1음절 → -er" },
+          { type: "translate", korean: "내 일본어 레벨이 영어보다 높아.", answer: "My Japanese level is higher than my English level.", distractors: ["My Japanese level is more higher than my English level.", "My Japanese level is more high than my English level."], hint: "high → higher (more 불필요)" },
+          { type: "fix", wrong: "This laptop is more faster than mine.", correct: "This laptop is faster than mine.", distractors: ["This laptop is most faster than mine.", "This laptop is more fast than mine."], hint: "이미 -er이면 more 불필요", source: "3/19" },
+          { type: "fix", wrong: "The exam was more easier than expected.", correct: "The exam was easier than expected.", distractors: ["The exam was most easier than expected.", "The exam was more easy than expected."], hint: "이미 -er이면 more 불필요", source: "3/19" },
+          { type: "fix", wrong: "My English is getting more good these days.", correct: "My English is getting better these days.", distractors: ["My English is getting more better these days.", "My English is getting gooder these days."], hint: "불규칙 비교급: good→better (more good X)", source: "3/19" },
+          { type: "translate", korean: "이 문제가 더 안 좋아졌어.", answer: "This problem has gotten worse.", distractors: ["This problem has gotten more bad.", "This problem has gotten badder."], hint: "불규칙 비교급: bad→worse (more bad X)", source: "3/19" },
+          { type: "fix", wrong: "the most biggest difference", correct: "the biggest difference", distractors: ["the most big difference", "the most bigest difference"], hint: "이중 최상급! most + -est 중복 (biggest만 사용)", source: "3/20" }
+        ]
+      },
+      {
+        id: "relative-clause",
+        name: "관계대명사",
+        severity: "mid",
+        rule: "'~한 명사' → that 필요 / 3인칭 단수 수일치",
+        cards: [
+          { type: "fix", wrong: "a cafe has many people", correct: "a cafe that has many people", distractors: ["a cafe which have many people", "a cafe has many peoples"], hint: "'~한 명사' → that 필요", source: "3/9" },
+          { type: "fix", wrong: "A place have many people.", correct: "A place that has many people.", distractors: ["A place that have many people.", "A place has many people."], hint: "관계절 + 3인칭 단수", source: "3/3" },
+          { type: "fill", sentence: "A place _____ has many people.", answer: "that", options: ["(없음)", "that", "which have"], hint: "'~한 명사' → that 필요" }
+        ]
+      },
+      {
+        id: "almost-most",
+        name: "almost vs most of",
+        severity: "mid",
+        rule: "almost(부사, 거의) ≠ most of(대부분의). almost married = 거의 결혼할 뻔한",
+        cards: [
+          { type: "fix", wrong: "My friends are almost married.", correct: "Most of my friends are married.", distractors: ["My friends are mostly married.", "Almost my friends are married."], hint: "almost(거의) ≠ most of(대부분의)", source: "3/13" },
+          { type: "fill", sentence: "_____ my coworkers take the subway.", answer: "Most of", options: ["Almost", "Most of", "Almost of"], hint: "대부분의 ~ = most of" },
+          { type: "translate", korean: "내 친구들 대부분은 결혼했어.", answer: "Most of my friends are married.", distractors: ["My friends are almost married.", "Almost my friends are married."], hint: "대부분의 = most of (almost X)" },
+          { type: "fix", wrong: "My friends are almost married.", correct: "Most of my friends are married.", distractors: ["My friends are mostly married.", "Almost of my friends are married."], hint: "almost(거의) ≠ most of(대부분의) — 반복 실수!", source: "3/16 연습" }
+        ]
+      },
+      {
+        id: "before-ago",
+        name: "before + ago 중복",
+        severity: "mid",
+        rule: "ago = ~전. before + ago는 중복! two weeks ago (O), before two weeks ago (X)",
+        cards: [
+          { type: "fix", wrong: "I went there before two weeks ago.", correct: "I went there two weeks ago.", distractors: ["I went there before two weeks.", "I went there ago two weeks."], hint: "ago가 이미 '전'을 의미, before 중복", source: "3/13" },
+          { type: "fill", sentence: "I started this job three months _____.", answer: "ago", options: ["before ago", "ago", "before"], hint: "ago = ~전 (before 불필요)" },
+          { type: "translate", korean: "2주 전에 갔어.", answer: "I went there two weeks ago.", distractors: ["I went there before two weeks ago.", "I went there before two weeks."], hint: "ago = ~전 (before 중복 X)" }
+        ]
+      },
+      {
+        id: "go-on-a-diet",
+        name: "go on a diet / not meant to",
+        severity: "mid",
+        rule: "go on a diet = 다이어트를 하다. not meant to = ~할 의도가 아닌",
+        cards: [
+          { type: "fix", wrong: "I need to diet.", correct: "I need to go on a diet.", distractors: ["I need to do diet.", "I need to make a diet."], hint: "go on a diet = 다이어트를 시작하다", source: "3/13" },
+          { type: "translate", korean: "그럴 의도가 아니었어.", answer: "I didn't mean to.", distractors: ["I'm not meant to.", "I didn't meant to."], hint: "didn't mean to = ~할 의도가 아니었어" },
+          { type: "fill", sentence: "I need to go _____ a diet.", answer: "on", options: ["on", "to", "in"], hint: "go on a diet" },
+          { type: "translate", korean: "다이어트를 해야 해.", answer: "I need to go on a diet.", distractors: ["I need to diet.", "I need to do a diet."], hint: "go on a diet = 다이어트를 하다" },
+          { type: "fix", wrong: "I started diet three weeks ago.", correct: "I am on a diet. I started three weeks ago.", distractors: ["I am going on a diet three weeks ago.", "I started on diet three weeks ago."], hint: "이미 시작 = I am on a diet (going on = 시작 전)", source: "3/18" },
+          { type: "fill", sentence: "I _____ a diet since last month.", answer: "am on", options: ["am on", "going on", "started"], hint: "이미 다이어트 중 = am on a diet" }
+        ]
+      },
+      {
+        id: "have-never",
+        name: "have never + p.p.",
+        severity: "mid",
+        rule: "have/has never + 과거분사 = ~한 적이 없다. 3인칭 단수 → has",
+        cards: [
+          { type: "fill", sentence: "I _____ never seen anything like this.", answer: "have", options: ["have", "has", "had"], hint: "I + have never" },
+          { type: "fix", wrong: "She have never been to London.", correct: "She has never been to London.", distractors: ["She have never gone to London.", "She has never went to London."], hint: "3인칭 단수 → has", source: "3/18" },
+          { type: "translate", korean: "나는 이런 걸 본 적이 없어.", answer: "I have never seen anything like this.", distractors: ["I never have seen anything like this.", "I have never saw anything like this."], hint: "have never + p.p. (seen)" },
+          { type: "fill", sentence: "He _____ never read this book.", answer: "has", options: ["have", "has", "had"], hint: "3인칭 단수 He → has" }
+        ]
+      },
+      {
+        id: "help-bare-infinitive",
+        name: "help + 동사원형",
+        severity: "mid",
+        rule: "help + 목적어 + 동사원형 (to 생략이 자연스러움)",
+        cards: [
+          { type: "fix", wrong: "He helped me to carry the boxes.", correct: "He helped me carry the boxes.", distractors: ["He helped me carrying the boxes.", "He helped me carried the boxes."], hint: "help + 목적어 + 동사원형 (to 생략)", source: "3/19" },
+          { type: "fill", sentence: "Can you help me _____ (clean) the kitchen?", answer: "clean", options: ["to clean", "clean", "cleaning"], hint: "help + 목적어 + 동사원형", source: "3/19" }
+        ]
+      }
+    ]
+  },
+  japanese: {
+    categories: [
+      {
+        id: "particle",
+        name: "조사 (を/の/が/に)",
+        severity: "high",
+        rule: "목적어=を / 회う·乗る=に / ~에는=には / ~에서는=では",
+        cards: [
+          { type: "fix", wrong: "台本の見ながら練習した。", correct: "台本を見ながら練習した。", distractors: ["台本が見ながら練習した。", "台本に見ながら練習した。"], hint: "목적어 = を (\"~을/를 보면서\")", source: "3/6" },
+          { type: "fix", wrong: "日本語がペラペラに話す。", correct: "日本語をペラペラ話せる。", distractors: ["日本語のペラペラに話す。", "日本語にペラペラ話す。"], hint: "\"~을 말하다\" = を + 동사", source: "3/6" },
+          { type: "fix", wrong: "友達を会いました。", correct: "友達に会いました。", distractors: ["友達が会いました。", "友達で会いました。"], hint: "会う는 に를 취함!", source: "3/11" },
+          { type: "fix", wrong: "ソリを乗っています。", correct: "ソリに乗っています。", distractors: ["ソリが乗っています。", "ソリで乗っています。"], hint: "乗る는 に를 취함!", source: "3/11" },
+          { type: "fix", wrong: "このセットでは充電器が含まれています。", correct: "このセットには充電器が含まれています。", distractors: ["このセットがは充電器が含まれています。", "このセットをは充電器が含まれています。"], hint: "\"~에는\" = には (では는 \"~에서는\")", source: "3/10" },
+          { type: "fill", sentence: "友達___たまたま会いました。", answer: "に", options: ["を", "に", "が"], hint: "会う는 に를 취함" },
+          { type: "fill", sentence: "バス___乗る。", answer: "に", options: ["を", "に", "で"], hint: "乗る는 に를 취함" },
+          { type: "translate", korean: "대본을 보면서 연습했어.", answer: "台本を見ながら練習した。", distractors: ["台本の見ながら練習した。", "台本が見ながら練習した。"], hint: "목적어 = を" },
+          { type: "fix", wrong: "10年前に旅行を行きました。", correct: "10年前に旅行に行きました。", distractors: ["10年前に旅行が行きました。", "10年前に旅行で行きました。"], hint: "旅行に行く (を X)", source: "3/16" },
+          { type: "fix", wrong: "高校の時からの友達があります。", correct: "高校の時からの友達がいます。", distractors: ["高校の時からの友達がありました。", "高校の時からの友達をいます。"], hint: "人はいる (ある X)", source: "3/16" }
+        ]
+      },
+      {
+        id: "kanji-vocab",
+        name: "한자 어휘 혼동",
+        severity: "high",
+        rule: "原価≠原画 / 台本≠大本 / 商品≠作品 / 値段(ねだん)",
+        cards: [
+          { type: "fix", wrong: "原画が高い。(원가가 높다)", correct: "原価(げんか)が高い。", distractors: ["原額が高い。", "原値が高い。"], hint: "原画(げんが)=원본그림, 原価(げんか)=원가", source: "3/6" },
+          { type: "fix", wrong: "大本を読む。(대본을 읽다)", correct: "台本(だいほん)を読む。", distractors: ["代本を読む。", "題本を読む。"], hint: "台本(だいほん) = 대본/스크립트", source: "3/6" },
+          { type: "fill", sentence: "この_____はいくらですか。(가격)", answer: "値段(ねだん)", options: ["ねたん", "値段(ねだん)", "値切(ねぎり)"], hint: "가격 = 値段(ねだん), ねたん X" },
+          { type: "fill", sentence: "料理_____に通っています。(요리교실)", answer: "教室", options: ["塾", "教室", "学校"], hint: "塾=학습학원, 教室=교실/스튜디오", source: "3/9" },
+          { type: "translate", korean: "인건비가 높아요.", answer: "人件費(じんけんひ)が高いです。", distractors: ["人件日が高いです。", "人件代が高いです。"], hint: "人件費(じんけんひ) = 인건비" },
+          { type: "fill", sentence: "この_____は全世界で売れています。(상품)", answer: "商品(しょうひん)", options: ["商品(しょうひん)", "作品(さくひん)", "製品(せいひん)"], hint: "商品=상품, 作品=작품" },
+          { type: "fix", wrong: "成長の良い生徒。(성적이 좋은)", correct: "成績(せいせき)の良い生徒。", distractors: ["成長(せいちょう)の良い生徒。", "成果(せいか)の良い生徒。"], hint: "成績=성적, 成長=성장", source: "3/20" },
+          { type: "fix", wrong: "大勤した。(퇴근했다)", correct: "退勤(たいきん)した。", distractors: ["大勤(だいきん)した。", "大金(たいきん)した。"], hint: "퇴근=退勤(たいきん)", source: "3/20" },
+          { type: "fix", wrong: "体を保証するために。(보호하기 위해)", correct: "体を保護(ほご)するために。", distractors: ["体を保証(ほしょう)するために。", "体を保険(ほけん)するために。"], hint: "保証=보증(guarantee), 保護=보호(protect)", source: "3/20" },
+          { type: "fix", wrong: "皮膚化に通う。(피부과에 다니다)", correct: "皮膚科(ひふか)に通う。", distractors: ["皮膚化(ひふか)に通う。", "皮膚家(ひふか)に通う。"], hint: "科=과(department), 化=변화", source: "3/20" },
+          { type: "fill", sentence: "ナイアガラの_____。(폭포)", answer: "滝(たき)", options: ["パクブ", "滝(たき)", "川(かわ)"], hint: "폭포=滝(たき)", source: "3/20" }
+        ]
+      },
+      {
+        id: "passive-potential",
+        name: "가능형 / 수동형",
+        severity: "high",
+        rule: "~できるようになる / 話す→話せる(가능) / 含む→含まれる(수동) / 愛する→愛される(수동)",
+        cards: [
+          { type: "fix", wrong: "プレゼンできになります。", correct: "プレゼンできるようになります。", distractors: ["プレゼンできにようなります。", "プレゼンできてようになります。"], hint: "~できるようになる = 할 수 있게 되다", source: "3/6" },
+          { type: "fix", wrong: "日本語を話すようになりたい。", correct: "日本語を話せるようになりたい。", distractors: ["日本語を話されるようになりたい。", "日本語を話しようになりたい。"], hint: "가능형: 話す→話せる", source: "3/6" },
+          { type: "fix", wrong: "この製品は愛受けています。", correct: "この製品は愛されています。", distractors: ["この製品は愛しています。", "この製品は愛れています。"], hint: "수동형: 愛する→愛される", source: "3/6" },
+          { type: "fix", wrong: "情報が含めた。", correct: "情報が含まれた。", distractors: ["情報が含んだ。", "情報が含まった。"], hint: "含める(타동사) vs 含まれる(수동)", source: "3/10" },
+          { type: "fix", wrong: "アレルギー成分が含まったら大変です。", correct: "アレルギー成分が含まれたら大変です。", distractors: ["アレルギー成分が含めたら大変です。", "アレルギー成分が含んだら大変です。"], hint: "수동형: 含む→含まれる", source: "3/10" },
+          { type: "fill", sentence: "台本なしでプレゼン_____ようになりました。", answer: "できる", options: ["できに", "できる", "できて"], hint: "~できるようになる = 할 수 있게 되다" },
+          { type: "translate", korean: "이 캐릭터는 전 세계에서 사랑받고 있습니다.", answer: "このキャラクターは全世界で愛されています。", distractors: ["このキャラクターは全世界で愛受けています。", "このキャラクターは全世界で愛しています。"], hint: "수동형: 愛する→愛される" }
+        ]
+      },
+      {
+        id: "transitive-intransitive",
+        name: "자동사 vs 타동사",
+        severity: "high",
+        rule: "始まる(자)↔始める(타) / 止まる(자)↔止める(타) / 開いている(상태)↔開ける(행위)",
+        cards: [
+          { type: "fill", sentence: "授業が9時に_____。(수업이 시작되다)", answer: "始まります", options: ["始めます", "始まります", "始まれます"], hint: "자동사: 始まる (수업이 스스로 시작)" },
+          { type: "fill", sentence: "お菓子を食べるのが_____。(멈출 수 없다)", answer: "止められない", options: ["止まらない", "止められない", "止めない"], hint: "타동사 가능형 부정: 止める→止められない" },
+          { type: "fix", wrong: "ドアが開けている。(열려있는 상태)", correct: "ドアが開いている。", distractors: ["ドアが開けていた。", "ドアを開いている。"], hint: "開いている=상태, 開ける=행위", source: "3/6" },
+          { type: "translate", korean: "회의를 시작합시다.", answer: "会議を始めましょう。", distractors: ["会議が始まりましょう。", "会議を始まりましょう。"], hint: "타동사: 始める (내가 시작하다)" },
+          { type: "translate", korean: "과자 먹는 거 멈출 수가 없어.", answer: "お菓子を食べるのが止められない。", distractors: ["お菓子を食べるのが止まらない。", "お菓子を食べるのを止めない。"], hint: "타동사 가능형 부정: 止められない" },
+          { type: "fix", wrong: "食事の量を上りましょう。(늘립시다)", correct: "食事の量を増やしましょう。", distractors: ["食事の量を増えましょう。", "食事の量が増やしましょう。"], hint: "増やす(타동사)=늘리다, 上る=올라가다(자동사)", source: "3/16" },
+          { type: "fill", sentence: "電車が徐々に速度を_____。(줄이다)", answer: "落とした", options: ["探した", "落とした", "降りた"], hint: "速度を落とす = 속도를 줄이다 (세트 표현)", source: "3/16" }
+        ]
+      },
+      {
+        id: "idiom-expression",
+        name: "관용표현",
+        severity: "mid",
+        rule: "嘘をつく / 実際に / 短期間≠短時間 / ~してみる vs ~してみよう",
+        cards: [
+          { type: "fix", wrong: "嘘をする。", correct: "嘘をつく。", distractors: ["嘘をいう。", "嘘をかける。"], hint: "거짓말하다 = 嘘をつく (세트 표현)", source: "3/6" },
+          { type: "fix", wrong: "短い時間内にできた。(며칠~몇 주)", correct: "短期間でできた。", distractors: ["短い間内にできた。", "短時間内にできた。"], hint: "短時間=2~3시간, 短期間=며칠~몇 주", source: "3/10" },
+          { type: "fix", wrong: "探してみよう。(사실 서술)", correct: "探してみる。", distractors: ["探してみたい。", "探してみます。"], hint: "みよう=권유(같이 ~하자), みる=사실 서술", source: "3/10" },
+          { type: "fill", sentence: "彼は_____に行ったことがある。(실제로)", answer: "実際", options: ["最", "実際", "最際"], hint: "실제로 = 実際に(じっさいに)" },
+          { type: "translate", korean: "짧은 기간에 많이 늘었어.", answer: "短期間でたくさん上達した。", distractors: ["短時間でたくさん上達した。", "短い時間でたくさん上達した。"], hint: "短期間(며칠~몇 주) ≠ 短時間(2~3시간)" },
+          { type: "fill", sentence: "偽物な_____。(~할 리가 없다)", answer: "わけない", options: ["わけない", "はずない", "ことない"], hint: "명사 + な + わけない" },
+          { type: "fix", wrong: "案外な人もいる。", correct: "意外な人もいる。", distractors: ["案外人もいる。", "意外に人もいる。"], hint: "명사 수식 = 意外な (案外は副詞)", source: "3/12" },
+          { type: "fix", wrong: "プロティンが入っている。", correct: "プロテインが入っている。", distractors: ["プロティインが入っている。", "プロテンが入っている。"], hint: "protein = プロテイン", source: "3/12" },
+          { type: "fix", wrong: "知ったことはないです。(해본 적 없다)", correct: "やったことはないです。", distractors: ["知っていたことはないです。", "やっていたことはないです。"], hint: "해본 적 없다 = やったことがない/したことがない", source: "3/12" },
+          { type: "fill", sentence: "お店の前を_____。(지나가다)", answer: "通りかかった", options: ["つながった", "通りかかった", "通った"], hint: "通りかかる=지나가다, つながる=연결되다", source: "3/12 연습" },
+          { type: "translate", korean: "우연히 가게 앞을 지나가다가 들어갔어.", answer: "たまたまお店の前を通りかかって入った。", distractors: ["たまたまお店の前をつながって入った。", "たまたまお店の前を通って入った。"], hint: "通りかかる(지나치다) ≠ つながる(연결되다)", source: "3/12 연습" },
+          { type: "fix", wrong: "環境が帰って忙しくなった。", correct: "環境が変わって忙しくなった。", distractors: ["環境が帰りて忙しくなった。", "環境を変わって忙しくなった。"], hint: "変わる=바뀌다, 帰る=돌아가다", source: "3/16" },
+          { type: "fix", wrong: "毎朝にプロテインを飲みます。", correct: "毎朝プロテインを飲みます。", distractors: ["毎朝のプロテインを飲みます。", "毎朝でプロテインを飲みます。"], hint: "毎日/毎朝/毎晩 뒤에 に 붙이지 않음", source: "3/16" },
+          { type: "fill", sentence: "我慢_____。(할 수밖에 없다)", answer: "するしかない", options: ["するしかない", "してしかない", "しないしかない"], hint: "～するしかない = ~할 수밖에 없다", source: "3/16" },
+          { type: "translate", korean: "채널 구독자 수가 서서히 늘고 있다.", answer: "チャンネル登録者数が徐々に増えている。", distractors: ["チャンネル登録者数が徐々に増やしている。", "チャンネル登録者数が少々に増えている。"], hint: "徐々に=서서히, 増える=늘다(자동사)", source: "3/16" },
+          { type: "fix", wrong: "じっといた。(가만히 있었다)", correct: "じっとしていた。", distractors: ["じっとであった。", "じっとのいた。"], hint: "じっと+動詞 必須 (する/見る/立つ)", source: "3/18" },
+          { type: "fix", wrong: "まだ食べなかったです。", correct: "まだ食べてないです。", distractors: ["まだ食べないです。", "まだ食べませんです。"], hint: "まだ+ていない (完了否定)", source: "3/18" },
+          { type: "fix", wrong: "朝になるときまで我慢した。", correct: "朝になるまで我慢した。", distractors: ["朝のときになるまで我慢した。", "朝にときまで我慢した。"], hint: "朝は時間 → とき不要, まで直接", source: "3/18" },
+          { type: "fix", wrong: "スイッチを買おうために毎日並んだ。", correct: "スイッチを買うために毎日並んだ。", distractors: ["スイッチを買ったために毎日並んだ。", "スイッチを買いために毎日並んだ。"], hint: "ために前は辞書形 (意志形X)", source: "3/18" },
+          { type: "translate", korean: "가만히 앉아 있었어.", answer: "じっと座っていた。", distractors: ["じっと座った。", "じっとに座っていた。"], hint: "じっと+動詞+ていた (に 불필요)" },
+          { type: "fix", wrong: "退勤するができる。", correct: "退勤できる。", distractors: ["退勤するのができる。", "退勤するができます。"], hint: "する+ができる 중복! できる만으로 충분", source: "3/20" },
+          { type: "fix", wrong: "何の装備なくて潜る。", correct: "何の装備もなくて潜る。", distractors: ["何の装備がなくて潜る。", "何も装備なくて潜る。"], hint: "何の~もない = 아무~도 없다 (も 필수)", source: "3/20" },
+          { type: "fix", wrong: "3回と4回ほど行く。(3~4회)", correct: "3回か4回ほど行く。", distractors: ["3回と4回くらい行く。", "3回に4回ほど行く。"], hint: "~또는~ = か (と=~와~)", source: "3/20" },
+          { type: "fix", wrong: "風邪をひくないように。", correct: "風邪をひかないように。", distractors: ["風邪をひきないように。", "風邪をひけないように。"], hint: "五段動詞 ない形: ひく→ひかない", source: "3/20" }
+        ]
+      },
+      {
+        id: "context-judgment",
+        name: "문맥 판단 (긍정/부정)",
+        severity: "mid",
+        rule: "たまたま+좋은 상황→긍정형 / 문맥에 맞는 형태 선택",
+        cards: [
+          { type: "fix", wrong: "たまたま現金を持っていて買えなかった。(마침 갖고 있어서)", correct: "たまたま現金を持っていて買えた。", distractors: ["たまたま現金を持っていて買わなかった。", "たまたま現金を持っていなくて買えた。"], hint: "たまたま+좋은 상황 → 긍정형 (買えた)", source: "3/11" },
+          { type: "fill", sentence: "たまたま友達に会えて_____。(기뻤다)", answer: "嬉しかった", options: ["悲しかった", "嬉しかった", "困った"], hint: "たまたま+좋은 결과 → 긍정적 감정" },
+          { type: "translate", korean: "우연히 현금을 갖고 있어서 살 수 있었어.", answer: "たまたま現金を持っていて買えた。", distractors: ["たまたま現金を持っていて買えなかった。", "たまたま現金を持っていなくて買えた。"], hint: "마침 ~해서 할 수 있었다 → 긍정형" },
+          { type: "translate", korean: "우연히 복권에 당첨됐어!", answer: "たまたま宝くじに当たった！", distractors: ["たまたま宝くじに当たらなかった！", "たまたまくじに当てた！"], hint: "당첨되다 = 当たる (자동사)" }
+        ]
+      },
+      {
+        id: "angai-igai",
+        name: "案外 vs 意外な",
+        severity: "mid",
+        rule: "案外=부사(단독사용) / 意外な=형용동사(명사수식). 案外に는 X",
+        cards: [
+          { type: "fix", wrong: "案外に寒くなかった。", correct: "案外寒くなかった。", distractors: ["案外が寒くなかった。", "意外寒くなかった。"], hint: "案外 뒤에 に 붙이지 않음!", source: "3/12" },
+          { type: "fix", wrong: "案外な面もあった。", correct: "意外な面もあった。", distractors: ["案外面もあった。", "意外に面もあった。"], hint: "명사 수식 = 意外な (案外は副詞のみ)", source: "3/12" },
+          { type: "fill", sentence: "彼には_____ところがある。(뜻밖의)", answer: "意外な", options: ["案外な", "意外な", "案外"], hint: "명사 수식 → 意外な" },
+          { type: "fill", sentence: "この映画、_____面白かった。(예상 외로)", answer: "案外", options: ["案外", "意外な", "案外に"], hint: "부사로 사용 → 案外 (に 불필요)" },
+          { type: "translate", korean: "예상과 달리 쉬웠어.", answer: "案外簡単だった。", distractors: ["案外に簡単だった。", "意外な簡単だった。"], hint: "案外 + 형용사 (に 불필요)" },
+          { type: "translate", korean: "뜻밖의 결과였어.", answer: "意外な結果だった。", distractors: ["案外な結果だった。", "案外結果だった。"], hint: "명사 수식 = 意外な" }
+        ]
+      },
+      {
+        id: "i-adj-na-adj",
+        name: "い형용사 / な형용사 활용",
+        severity: "mid",
+        rule: "い형: 痛い→痛かった / な형: 大丈夫+だ+けど",
+        cards: [
+          { type: "fix", wrong: "心が痛った。", correct: "心が痛かった。", distractors: ["心が痛いった。", "心が痛くった。"], hint: "い形容詞 過去: 痛い→痛かった (痛った X)", source: "3/18" },
+          { type: "fix", wrong: "大丈夫けどあまり好きじゃない。", correct: "大丈夫だけどあまり好きじゃない。", distractors: ["大丈夫なけどあまり好きじゃない。", "大丈夫のけどあまり好きじゃない。"], hint: "な形容詞+だ+けど (だ 필수!)", source: "3/18" },
+          { type: "fix", wrong: "悲しいくって泣いた。", correct: "悲しくて泣いた。", distractors: ["悲しいて泣いた。", "悲しくって泣いた。"], hint: "て形: 悲しい→悲しくて (くって X)", source: "3/18" },
+          { type: "fill", sentence: "昨日は頭が_____。(아팠다)", answer: "痛かった", options: ["痛った", "痛かった", "痛いだった"], hint: "い形容詞 過去: ~い→~かった" },
+          { type: "fill", sentence: "ここは静か_____うるさい時もある。", answer: "だけど", options: ["けど", "だけど", "なけど"], hint: "な形容詞+だ+けど" }
+        ]
+      }
+      {
+        id: "volitional",
+        name: "의지형 / ~やすい",
+        severity: "mid",
+        rule: "食べる→食べよう(의지) / 動詞+やすい=하기 쉽다",
+        cards: [
+          { type: "fix", wrong: "明日食べしようと思います。", correct: "明日食べようと思います。", distractors: ["明日食べしたいと思います。", "明日食べするつもりです。"], hint: "食べる→食べよう (しよう는 する의 의지형)", source: "3/12" },
+          { type: "fill", sentence: "この本は読み_____。(읽기 쉽다)", answer: "やすい", options: ["やすい", "にくい", "たい"], hint: "동사 연용형 + やすい = ~하기 쉽다" },
+          { type: "fill", sentence: "編み方を覚えたら_____できるよ。(쉽게)", answer: "簡単に", options: ["簡単に", "簡単な", "簡単で"], hint: "동사 수식 = 簡単に (부사형)" },
+          { type: "translate", korean: "이 단어는 외우기 쉬워.", answer: "この単語は覚えやすい。", distractors: ["この単語は覚えにくい。", "この単語は覚えたい。"], hint: "~やすい = 하기 쉽다" }
+        ]
+      }
+    ]
+  }
+};
+
+// ============================================================
+// SRS 로직
+// ============================================================
+const SRS_KEY = 'drill-srs-v1';
+const STATS_KEY = 'drill-stats-v1';
+const SRS_INTERVALS = [0, 1, 3, 7, 14]; // 레벨별 복습 간격(일)
+
+function loadSRS() {
+  try { return JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch { return {}; }
+}
+function saveSRS(data) { localStorage.setItem(SRS_KEY, JSON.stringify(data)); }
+
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem(STATS_KEY)) || { streak: 0, lastDate: null, totalReviewed: 0, mastered: 0 }; }
+  catch { return { streak: 0, lastDate: null, totalReviewed: 0, mastered: 0 }; }
+}
+function saveStats(data) { localStorage.setItem(STATS_KEY, JSON.stringify(data)); }
+
+function getCardId(catId, cardIdx) { return `${catId}:${cardIdx}`; }
+
+function getToday() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+function daysBetween(a, b) {
+  return Math.floor((new Date(b) - new Date(a)) / 86400000);
+}
+
+function getCardState(srs, cardId) {
+  return srs[cardId] || { level: 0, lastReview: null };
+}
+
+function isDueToday(state, today) {
+  if (!state.lastReview) return true;
+  if (state.level >= SRS_INTERVALS.length) return false; // 마스터
+  const interval = SRS_INTERVALS[state.level];
+  return daysBetween(state.lastReview, today) >= interval;
+}
+
+function getDueCards(lang, mode) {
+  const srs = loadSRS();
+  const today = getToday();
+  const cats = DRILL_DATA[lang]?.categories || [];
+  const due = [];
+  const newCards = [];
+
+  cats.forEach(cat => {
+    cat.cards.forEach((card, idx) => {
+      if (mode && card.type !== mode) return;
+      const cardId = getCardId(cat.id, idx);
+      const state = getCardState(srs, cardId);
+      if (state.level >= SRS_INTERVALS.length) return; // 마스터 완료
+      if (isDueToday(state, today)) {
+        if (!state.lastReview) {
+          newCards.push({ card, cat, cardId, state });
+        } else {
+          due.push({ card, cat, cardId, state });
+        }
+      }
+    });
+  });
+
+  // severity high 카드 우선, 그다음 레벨 낮은 것 우선
+  const severityOrder = { high: 0, mid: 1 };
+  const sorter = (a, b) => {
+    const sa = severityOrder[a.cat.severity] ?? 2;
+    const sb = severityOrder[b.cat.severity] ?? 2;
+    if (sa !== sb) return sa - sb;
+    return a.state.level - b.state.level;
+  };
+
+  due.sort(sorter);
+  newCards.sort(sorter);
+
+  return [...due, ...newCards];
+}
+
+function recordAnswer(cardId, isCorrect) {
+  const srs = loadSRS();
+  const state = getCardState(srs, cardId);
+
+  if (isCorrect) {
+    state.level = Math.min(state.level + 1, SRS_INTERVALS.length);
+  } else {
+    state.level = 0;
+  }
+  state.lastReview = getToday();
+  srs[cardId] = state;
+  saveSRS(srs);
+
+  // 통계 업데이트
+  const stats = loadStats();
+  stats.totalReviewed++;
+  const today = getToday();
+  if (stats.lastDate === today) {
+    // 같은 날
+  } else if (stats.lastDate && daysBetween(stats.lastDate, today) === 1) {
+    stats.streak++;
+  } else if (stats.lastDate !== today) {
+    stats.streak = 1;
+  }
+  stats.lastDate = today;
+
+  // 마스터 수 계산
+  let mastered = 0;
+  Object.values(srs).forEach(s => { if (s.level >= SRS_INTERVALS.length) mastered++; });
+  stats.mastered = mastered;
+
+  saveStats(stats);
+}
+
+// ============================================================
+// 앱 상태
+// ============================================================
+let currentLang = 'english';
+let currentMode = null; // null = 전체, 'fill', 'fix', 'translate'
+let queue = [];
+let queueIndex = 0;
+let sessionCorrect = 0;
+let sessionTotal = 0;
+let answered = false;
+
+// ============================================================
+// UI 렌더링
+// ============================================================
+function switchLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('#lang-tabs .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#lang-tabs .tab').forEach(t => {
+    if ((lang === 'english' && t.textContent === 'English') ||
+        (lang === 'japanese' && t.textContent === '日本語')) t.classList.add('active');
+  });
+  startSession();
+}
+
+function switchMode(mode) {
+  currentMode = currentMode === mode ? null : mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  if (currentMode) {
+    document.querySelectorAll('.mode-tab').forEach(t => {
+      const m = t.textContent.includes('빈칸') ? 'fill' : t.textContent.includes('고치기') ? 'fix' : 'translate';
+      if (m === currentMode) t.classList.add('active');
+    });
+  }
+  startSession();
+}
+
+function startSession() {
+  queue = getDueCards(currentLang, currentMode);
+  queueIndex = 0;
+  sessionCorrect = 0;
+  sessionTotal = 0;
+  answered = false;
+  renderSummary();
+  renderCard();
+  renderStats();
+}
+
+function renderSummary() {
+  const srs = loadSRS();
+  const stats = loadStats();
+  const cats = DRILL_DATA[currentLang]?.categories || [];
+  let totalCards = 0;
+  let reviewCount = 0;
+  let newCount = 0;
+  const today = getToday();
+
+  cats.forEach(cat => {
+    cat.cards.forEach((card, idx) => {
+      totalCards++;
+      const cid = getCardId(cat.id, idx);
+      const state = getCardState(srs, cid);
+      if (state.level >= SRS_INTERVALS.length) return;
+      if (isDueToday(state, today)) {
+        if (!state.lastReview) newCount++;
+        else reviewCount++;
+      }
+    });
+  });
+
+  document.getElementById('today-info').textContent =
+    `복습 ${reviewCount}장 / 새 카드 ${newCount}장 / 전체 ${totalCards}장`;
+
+  document.getElementById('summary').innerHTML = `
+    <div class="stat-card">
+      <div class="value" style="color:var(--gold)">${stats.streak || 0}일</div>
+      <div class="label">연속 학습</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color:var(--green)">${stats.mastered || 0}장</div>
+      <div class="label">마스터</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">${stats.totalReviewed || 0}</div>
+      <div class="label">총 복습</div>
+    </div>
+  `;
+}
+
+function renderProgress() {
+  const total = queue.length;
+  const current = Math.min(queueIndex + 1, total);
+  document.getElementById('progress-text').textContent =
+    total > 0 ? `${current} / ${total}` : '';
+  document.getElementById('progress-fill').style.width =
+    total > 0 ? `${(current / total) * 100}%` : '0%';
+}
+
+function renderCard() {
+  renderProgress();
+  const area = document.getElementById('card-area');
+
+  if (queue.length === 0) {
+    area.innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">🎉</div>
+        <p>오늘 복습할 카드가 없습니다!<br>새 수업 후 카드가 추가됩니다.</p>
+      </div>`;
+    return;
+  }
+
+  if (queueIndex >= queue.length) {
+    const pct = sessionTotal > 0 ? Math.round(sessionCorrect / sessionTotal * 100) : 0;
+    area.innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">✅</div>
+        <p>세션 완료!<br>정답률: ${pct}% (${sessionCorrect}/${sessionTotal})</p>
+        <button class="next-btn" style="margin-top:16px" onclick="startSession()">다시 시작</button>
+      </div>`;
+    return;
+  }
+
+  const { card, cat } = queue[queueIndex];
+  answered = false;
+
+  if (card.type === 'fill') renderFill(card, cat);
+  else if (card.type === 'fix') renderFix(card, cat);
+  else if (card.type === 'translate') renderTranslate(card, cat);
+}
+
+function renderFill(card, cat) {
+  const area = document.getElementById('card-area');
+  const sentenceHtml = card.sentence.replace('_____', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+  const shuffled = [...card.options].sort(() => Math.random() - 0.5);
+
+  area.innerHTML = `
+    <div class="card-category">${cat.name}</div>
+    <div class="card-sentence">${sentenceHtml}</div>
+    <div class="options" id="options">
+      ${shuffled.map(opt => `
+        <button class="opt-btn" onclick="answerFill(this, ${JSON.stringify(opt).replace(/"/g, '&quot;')})">${opt}</button>
+      `).join('')}
+    </div>
+    <div id="feedback-slot"></div>
+  `;
+}
+
+function answerFill(btn, selected) {
+  if (answered) return;
+  answered = true;
+  sessionTotal++;
+
+  const { card, cardId } = queue[queueIndex];
+  const answers = Array.isArray(card.answer) ? card.answer : [card.answer];
+  const isCorrect = answers.includes(selected);
+  if (isCorrect) sessionCorrect++;
+
+  recordAnswer(cardId, isCorrect);
+
+  // 모든 버튼 처리
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    if (answers.includes(b.textContent)) b.classList.add('correct');
+    else if (b === btn && !isCorrect) b.classList.add('wrong');
+    b.style.pointerEvents = 'none';
+  });
+
+  // 빈칸에 선택한 답 표시
+  const blank = document.querySelector('.blank');
+  const displayAnswer = isCorrect ? selected : answers[0];
+  if (blank) { blank.textContent = displayAnswer; blank.style.color = isCorrect ? 'var(--green)' : 'var(--red)'; }
+
+  showFeedback(isCorrect, answers.join(' / '), card.hint);
+}
+
+function renderFix(card, cat) {
+  const area = document.getElementById('card-area');
+  const options = [card.correct, ...(card.distractors || [])].sort(() => Math.random() - 0.5);
+
+  area.innerHTML = `
+    <div class="card-category">${cat.name}</div>
+    <div style="font-size:0.8em;color:var(--text-dim);margin-bottom:8px">올바른 문장을 고르세요</div>
+    <div class="card-sentence"><span class="wrong-mark">${card.wrong}</span></div>
+    <div class="options" id="options">
+      ${options.map(opt => `
+        <button class="opt-btn" onclick="answerChoice(this, ${JSON.stringify(opt).replace(/"/g, '&quot;')}, ${JSON.stringify(card.correct).replace(/"/g, '&quot;')})">${opt}</button>
+      `).join('')}
+    </div>
+    <div id="feedback-slot"></div>
+  `;
+}
+
+function renderTranslate(card, cat) {
+  const area = document.getElementById('card-area');
+  const correctAnswer = card.correct || card.answer;
+  const options = [correctAnswer, ...(card.distractors || [])].sort(() => Math.random() - 0.5);
+
+  area.innerHTML = `
+    <div class="card-category">${cat.name}</div>
+    <div style="font-size:0.8em;color:var(--text-dim);margin-bottom:8px">영어로 번역하면?</div>
+    <div class="card-korean">${card.korean}</div>
+    <div class="options" id="options">
+      ${options.map(opt => `
+        <button class="opt-btn" onclick="answerChoice(this, ${JSON.stringify(opt).replace(/"/g, '&quot;')}, ${JSON.stringify(correctAnswer).replace(/"/g, '&quot;')})">${opt}</button>
+      `).join('')}
+    </div>
+    <div id="feedback-slot"></div>
+  `;
+}
+
+function answerChoice(btn, selected, correct) {
+  if (answered) return;
+  answered = true;
+  sessionTotal++;
+
+  const isCorrect = selected === correct;
+  if (isCorrect) sessionCorrect++;
+
+  const { card, cardId } = queue[queueIndex];
+  recordAnswer(cardId, isCorrect);
+
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    if (b.textContent === correct) b.classList.add('correct');
+    else if (b === btn && !isCorrect) b.classList.add('wrong');
+    b.style.pointerEvents = 'none';
+  });
+
+  showFeedback(isCorrect, correct, card.hint);
+}
+
+function showFeedback(isCorrect, correct, hint) {
+  const slot = document.getElementById('feedback-slot');
+  slot.innerHTML = `
+    <div class="feedback ${isCorrect ? 'correct-fb' : 'wrong-fb'}">
+      <div class="fb-label">${isCorrect ? '✓ 정답!' : '✗ 오답'}</div>
+      ${!isCorrect ? `<div class="fb-correct">→ ${correct}</div>` : ''}
+      <div class="fb-hint">${hint}</div>
+    </div>
+    <button class="next-btn" onclick="nextCard()">다음 →</button>
+  `;
+}
+
+function nextCard() {
+  queueIndex++;
+  renderCard();
+  renderSummary();
+}
+
+function normalize(s) {
+  return s.toLowerCase().replace(/[.,!?;:'"]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function renderStats() {
+  const srs = loadSRS();
+  const cats = DRILL_DATA[currentLang]?.categories || [];
+  let total = 0, mastered = 0, inProgress = 0, newCount = 0;
+
+  cats.forEach(cat => {
+    cat.cards.forEach((card, idx) => {
+      total++;
+      const cid = getCardId(cat.id, idx);
+      const state = getCardState(srs, cid);
+      if (state.level >= SRS_INTERVALS.length) mastered++;
+      else if (state.lastReview) inProgress++;
+      else newCount++;
+    });
+  });
+
+  document.getElementById('stats-section').innerHTML = `
+    <h2>카드 현황</h2>
+    <div class="stats-grid">
+      <div class="stats-item"><div class="s-value" style="color:var(--green)">${mastered}</div><div class="s-label">마스터</div></div>
+      <div class="stats-item"><div class="s-value" style="color:var(--accent)">${inProgress}</div><div class="s-label">학습 중</div></div>
+      <div class="stats-item"><div class="s-value">${newCount}</div><div class="s-label">새 카드</div></div>
+      <div class="stats-item"><div class="s-value">${total}</div><div class="s-label">전체</div></div>
+    </div>
+  `;
+}
+
+function resetProgress() {
+  if (confirm('학습 기록을 모두 초기화하시겠습니까?')) {
+    localStorage.removeItem(SRS_KEY);
+    localStorage.removeItem(STATS_KEY);
+    startSession();
+  }
+}
+
+// PWA 서비스 워커 등록
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./drill-sw.js').catch(() => {});
+}
+
+// 초기 실행
+startSession();
+</script>
+</body>
+</html>
