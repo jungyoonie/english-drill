@@ -2,7 +2,7 @@
   "name": "영어 드릴",
   "short_name": "Drill",
   "description": "나만의 영어 반복 학습 앱",
-  "start_url": "./drill.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
