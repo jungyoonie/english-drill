@@ -1,5 +1,5 @@
 const CACHE_NAME = 'drill-v1';
-const ASSETS = ['./drill.html', './drill-manifest.json'];
+const ASSETS = ['./index.html', './drill-manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
