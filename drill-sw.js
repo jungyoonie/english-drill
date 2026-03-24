@@ -1,4 +1,4 @@
-const CACHE_NAME = 'drill-v3';
+const CACHE_NAME = 'drill-v5';
 const ASSETS = ['./index.html', './drill-manifest.json'];
 
 self.addEventListener('install', e => {
