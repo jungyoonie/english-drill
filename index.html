@@ -852,12 +852,11 @@ function renderCard() {
 
   if (card.type === 'fill') {
     promptHtml = card.sentence.replace('_____', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
-    if (card.korean) promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + card.korean + '</div>';
+    promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + (card.korean || card.hint) + '</div>';
     placeholder = '빈칸에 들어갈 답을 입력';
   } else if (card.type === 'fix') {
     promptHtml = '<span class="wrong">' + card.wrong + '</span>';
-    if (card.korean) promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + card.korean + '</div>';
-    else promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">→ ' + card.hint + '</div>';
+    promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + (card.korean || '→ ' + card.hint) + '</div>';
     placeholder = '올바른 문장을 입력';
   } else {
     promptHtml = '<span class="korean">' + card.korean + '</span>';
@@ -868,7 +867,6 @@ function renderCard() {
     <div class="card-type">${typeLabel}</div>
     <div class="card-cat">${cat.name}</div>
     <div class="card-prompt">${promptHtml}</div>
-    <div class="card-rule">${cat.rule}</div>
     <div class="answer-row">
       <input class="answer-input" id="answer-input" type="text" placeholder="${placeholder}" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">확인</button>
