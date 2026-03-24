@@ -856,7 +856,6 @@ function renderCard() {
     placeholder = '빈칸에 들어갈 답을 입력';
   } else if (card.type === 'fix') {
     promptHtml = '<span class="wrong">' + card.wrong + '</span>';
-    promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + (card.korean || '→ ' + card.hint) + '</div>';
     placeholder = '올바른 문장을 입력';
   } else {
     promptHtml = '<span class="korean">' + card.korean + '</span>';
