@@ -871,9 +871,12 @@ function renderCard() {
     <div id="feedback-slot"></div>`;
 
   const input = document.getElementById('answer-input');
+  let composing = false;
   setTimeout(() => input.focus(), 100);
+  input.addEventListener('compositionstart', () => { composing = true; });
+  input.addEventListener('compositionend', () => { composing = false; });
   input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !composing) {
       e.preventDefault();
       if (!answered) submitAnswer();
       else nextCard();
