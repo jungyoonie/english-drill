@@ -747,6 +747,7 @@ let queueIndex = 0;
 let sessionCorrect = 0;
 let answered = false;
 let topCats = [];
+let wrongLog = []; // 틀린 문제 기록
 
 // ============================================================
 // UI
@@ -767,6 +768,7 @@ function startSession() {
   queueIndex = 0;
   sessionCorrect = 0;
   answered = false;
+  wrongLog = [];
   renderStreak();
   renderCatBadges();
   renderGoal();
@@ -813,11 +815,16 @@ function renderCard() {
     const pct = queue.length > 0 ? Math.round(sessionCorrect / queue.length * 100) : 0;
     const emoji = pct >= 80 ? '🔥' : pct >= 50 ? '👍' : '💪';
     const msg = pct >= 80 ? '완벽에 가까워요!' : pct >= 50 ? '좋은 연습이었어요' : '틀린 문제 위주로 다시 해봐요';
+    const promptBlock = wrongLog.length > 0 ? `
+      <div style="margin-top:20px;text-align:left">
+        <button class="retry-btn" style="margin:0 0 10px;width:100%" onclick="copyPrompt()">📋 틀린 문제 피드백 복사</button>
+        <div id="copy-msg" style="font-size:0.8em;color:var(--green);text-align:center;display:none">복사됨!</div>
+      </div>` : '';
     area.innerHTML = `<div class="celebration">
       <div class="emoji">${emoji}</div>
       <div class="title">오늘의 드릴 완료</div>
       <div class="score" style="color:${pct>=50?'var(--green)':'var(--orange)'}">${pct}%</div>
-      <div class="detail">${sessionCorrect}/${queue.length} 정답 · ${msg}</div>
+      <div class="detail">${sessionCorrect}/${queue.length} 정답 · ${msg}</div>${promptBlock}
       <button class="retry-btn" onclick="startSession()">다시 도전</button>
     </div>`;
 
@@ -896,11 +903,12 @@ function submitAnswer() {
   srs[cardId] = state;
   saveSRS(srs);
 
-  // 카테고리 오답 추적
+  // 카테고리 오답 추적 + 오답 로그
   if (!isCorrect) {
     const errs = loadCatErrors();
     errs[cat.id] = (errs[cat.id]||0) + 1;
     saveCatErrors(errs);
+    wrongLog.push({ cat: cat.name, type: card.type, myAnswer: val, correct: getCorrectDisplay(correctVal), hint: card.hint, question: card.type === 'fill' ? card.sentence : card.type === 'fix' ? card.wrong : card.korean });
   }
 
   // 통계
@@ -922,6 +930,22 @@ function submitAnswer() {
       <div class="fb-hint">${card.hint}</div>
     </div>
     <button class="next-btn" onclick="nextCard()">다음 →</button>`;
+}
+
+function copyPrompt() {
+  const lang = currentLang === 'english' ? '영어' : '일본어';
+  let text = `${lang} 드릴에서 틀린 문제 ${wrongLog.length}개야. 각각 왜 틀렸는지 짧게 설명해주고, 비슷한 패턴으로 연습 문제 3개만 내줘.\n\n`;
+  wrongLog.forEach((w, i) => {
+    text += `${i+1}. [${w.cat}] `;
+    if (w.type === 'fill') text += `빈칸: ${w.question}\n`;
+    else if (w.type === 'fix') text += `교정: ${w.question}\n`;
+    else text += `번역: ${w.question}\n`;
+    text += `   내 답: ${w.myAnswer}\n   정답: ${w.correct}\n   힌트: ${w.hint}\n\n`;
+  });
+  navigator.clipboard.writeText(text).then(() => {
+    const msg = document.getElementById('copy-msg');
+    if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 2000); }
+  });
 }
 
 function nextCard() {
