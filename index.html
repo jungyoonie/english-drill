@@ -846,7 +846,7 @@ function renderCard() {
   const { card, cat } = queue[queueIndex];
   answered = false;
 
-  const typeLabel = card.type === 'fill' ? '빈칸 채우기' : '번역하기';
+  const typeLabel = card.type === 'fill' ? '빈칸 채우기' : (card.type === 'fix' && !card.korean) ? '문장 고치기' : '번역하기';
   let promptHtml = '';
   let placeholder = '';
 
@@ -855,8 +855,13 @@ function renderCard() {
     promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + (card.korean || card.hint) + '</div>';
     placeholder = '빈칸에 들어갈 답을 입력';
   } else if (card.type === 'fix') {
-    promptHtml = '<span class="korean">' + (card.korean || card.hint) + '</span>';
-    placeholder = currentLang === 'english' ? 'English로 번역' : '日本語で翻訳';
+    if (card.korean) {
+      promptHtml = '<span class="korean">' + card.korean + '</span>';
+      placeholder = currentLang === 'english' ? 'English로 번역' : '日本語で翻訳';
+    } else {
+      promptHtml = '<span class="wrong">' + card.wrong + '</span>';
+      placeholder = '올바른 문장을 입력';
+    }
   } else {
     promptHtml = '<span class="korean">' + card.korean + '</span>';
     placeholder = currentLang === 'english' ? 'English로 번역' : '日本語で翻訳';
