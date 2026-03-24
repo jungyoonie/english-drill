@@ -724,7 +724,9 @@ function getDailyCards(lang) {
 // ============================================================
 function normalize(s) {
   return s.toLowerCase()
-    .replace(/[.,!?;:'"。、！？「」『』（）()\u3000]/g, '')
+    .replace(/\([^)]*\)/g, '')   // 괄호+읽기 제거: 原価(げんか) → 原価
+    .replace(/（[^）]*）/g, '')   // 全角괄호도 제거
+    .replace(/[.,!?;:'"。、！？「」『』\u3000]/g, '')
     .replace(/\s+/g, ' ').trim();
 }
 
