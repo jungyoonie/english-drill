@@ -872,13 +872,6 @@ function renderCard() {
 
   const input = document.getElementById('answer-input');
   setTimeout(() => input.focus(), 100);
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) {
-      e.preventDefault();
-      if (!answered) submitAnswer();
-      else nextCard();
-    }
-  });
 }
 
 function submitAnswer() {
@@ -961,6 +954,13 @@ function resetProgress() {
     startSession();
   }
 }
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) {
+    if (answered) { e.preventDefault(); nextCard(); }
+    else if (document.activeElement === document.getElementById('answer-input')) { e.preventDefault(); submitAnswer(); }
+  }
+});
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./drill-sw.js').catch(() => {});
