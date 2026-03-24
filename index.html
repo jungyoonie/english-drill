@@ -846,7 +846,7 @@ function renderCard() {
   const { card, cat } = queue[queueIndex];
   answered = false;
 
-  const typeLabel = card.type === 'fill' ? '빈칸 채우기' : card.type === 'fix' ? '문장 고치기' : '번역하기';
+  const typeLabel = card.type === 'fill' ? '빈칸 채우기' : '번역하기';
   let promptHtml = '';
   let placeholder = '';
 
@@ -855,8 +855,8 @@ function renderCard() {
     promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + (card.korean || card.hint) + '</div>';
     placeholder = '빈칸에 들어갈 답을 입력';
   } else if (card.type === 'fix') {
-    promptHtml = '<span class="wrong">' + card.wrong + '</span>';
-    placeholder = '올바른 문장을 입력';
+    promptHtml = '<span class="korean">' + (card.korean || card.hint) + '</span>';
+    placeholder = currentLang === 'english' ? 'English로 번역' : '日本語で翻訳';
   } else {
     promptHtml = '<span class="korean">' + card.korean + '</span>';
     placeholder = currentLang === 'english' ? 'English로 번역' : '日本語で翻訳';
@@ -922,6 +922,7 @@ function submitAnswer() {
     <div class="feedback ${isCorrect ? 'correct-fb' : 'wrong-fb'}">
       <div class="fb-label">${isCorrect ? '✓ 정답!' : '✗ 오답'}</div>
       ${!isCorrect ? '<div class="fb-answer">→ ' + display + '</div>' : ''}
+      ${!isCorrect && card.type === 'fix' ? '<div style="margin-top:4px;font-size:0.8em;color:var(--text-dim)">이전 실수: ' + card.wrong + '</div>' : ''}
       <div class="fb-hint">${card.hint}</div>
     </div>
     <button class="next-btn" onclick="nextCard()">다음 →</button>`;
