@@ -9,204 +9,89 @@
 <title>영어 드릴</title>
 <style>
   :root {
-    --bg: #0d1117;
-    --card: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text-dim: #8b949e;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --red: #f85149;
-    --orange: #d29922;
-    --gold: #f0c000;
-    --purple: #bc8cff;
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-dim: #8b949e;
+    --accent: #58a6ff; --green: #3fb950; --red: #f85149;
+    --orange: #d29922; --gold: #f0c000; --purple: #bc8cff;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 16px;
-    min-height: 100dvh;
-    -webkit-tap-highlight-color: transparent;
+    background: var(--bg); color: var(--text);
+    max-width: 480px; margin: 0 auto; padding: 16px;
+    min-height: 100dvh; -webkit-tap-highlight-color: transparent;
   }
-
-  /* 헤더 */
-  .header { margin-bottom: 20px; }
-  .header h1 { font-size: 1.4em; margin-bottom: 4px; }
-  .header .subtitle { font-size: 0.85em; color: var(--text-dim); }
-
-  /* 탭 */
-  .tabs {
-    display: flex; gap: 4px; margin-bottom: 16px;
-    background: var(--card); border-radius: 8px; padding: 4px;
-  }
-  .tab {
-    flex: 1; padding: 8px; border-radius: 6px; cursor: pointer;
-    font-size: 0.85em; font-weight: 600; color: var(--text-dim);
-    border: none; background: none; text-align: center; transition: all 0.2s;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { background: var(--accent); color: #fff; }
-
-  /* 모드 탭 */
-  .mode-tabs {
-    display: flex; gap: 4px; margin-bottom: 16px;
-    background: var(--card); border-radius: 8px; padding: 4px;
-  }
-  .mode-tab {
-    flex: 1; padding: 6px 8px; border-radius: 6px; cursor: pointer;
-    font-size: 0.8em; font-weight: 600; color: var(--text-dim);
-    border: none; background: none; text-align: center; transition: all 0.2s;
-  }
-  .mode-tab:hover { color: var(--text); }
-  .mode-tab.active { background: var(--purple); color: #fff; }
-
-  /* 요약 카드 */
-  .summary {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 8px; margin-bottom: 16px;
-  }
-  .stat-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px; text-align: center;
-  }
-  .stat-card .value { font-size: 1.5em; font-weight: 700; }
-  .stat-card .label { font-size: 0.7em; color: var(--text-dim); margin-top: 2px; }
-
-  /* 카드 영역 */
-  .card-area {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; padding: 24px; margin-bottom: 16px;
-    min-height: 280px; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; text-align: center;
-  }
-  .card-category {
-    font-size: 0.75em; color: var(--accent); margin-bottom: 12px;
-    padding: 4px 10px; background: rgba(88,166,255,0.1);
-    border-radius: 12px; display: inline-block;
-  }
-  .card-sentence {
-    font-size: 1.2em; line-height: 1.6; margin-bottom: 20px;
-    word-break: keep-all;
-  }
-  .card-sentence .blank {
-    display: inline-block; min-width: 80px; border-bottom: 2px solid var(--accent);
-    margin: 0 4px; color: var(--accent);
-  }
-  .card-sentence .wrong-mark { color: var(--red); text-decoration: line-through; }
-  .card-korean { font-size: 1.1em; color: var(--text); line-height: 1.5; margin-bottom: 20px; }
-
-  /* 보기 버튼 */
-  .options { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-  .opt-btn {
-    padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--card); color: var(--text); font-size: 0.95em;
-    cursor: pointer; transition: all 0.15s; text-align: left;
-  }
-  .opt-btn:hover { border-color: var(--accent); }
-  .opt-btn:active { transform: scale(0.98); }
-  .opt-btn.correct { border-color: var(--green); background: rgba(63,185,80,0.15); color: var(--green); }
-  .opt-btn.wrong { border-color: var(--red); background: rgba(248,81,73,0.15); color: var(--red); }
-
-  /* 피드백 */
-  .feedback {
-    width: 100%; margin-top: 16px; padding: 16px;
-    border-radius: 10px; text-align: left; font-size: 0.9em; line-height: 1.6;
-  }
-  .feedback.correct-fb { background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.3); }
-  .feedback.wrong-fb { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); }
-  .feedback .fb-label { font-weight: 700; margin-bottom: 6px; }
-  .feedback .fb-correct { color: var(--green); }
-  .feedback .fb-wrong { color: var(--red); }
-  .feedback .fb-hint { color: var(--text-dim); margin-top: 6px; font-size: 0.85em; }
-
-  /* 다음 버튼 */
-  .next-btn {
-    margin-top: 12px; padding: 12px 32px; border-radius: 10px;
-    border: none; background: var(--accent); color: #fff;
-    font-size: 0.95em; font-weight: 600; cursor: pointer;
-  }
-  .next-btn:active { opacity: 0.8; }
-
-  /* 진행률 */
-  .progress-bar {
-    background: var(--card); border-radius: 8px; height: 6px;
-    margin-bottom: 16px; overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%; background: var(--accent); border-radius: 8px;
-    transition: width 0.3s;
-  }
-  .progress-text {
-    font-size: 0.8em; color: var(--text-dim); text-align: center; margin-bottom: 8px;
-  }
-
-  /* 통계 */
-  .stats-section {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px; margin-bottom: 16px;
-  }
-  .stats-section h2 { font-size: 0.9em; color: var(--text-dim); margin-bottom: 10px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .stats-item { font-size: 0.85em; }
-  .stats-item .s-value { font-weight: 700; font-size: 1.1em; }
-  .stats-item .s-label { color: var(--text-dim); font-size: 0.8em; }
-
-  /* 빈 상태 */
-  .empty-state {
-    text-align: center; padding: 40px 20px; color: var(--text-dim);
-  }
-  .empty-state .emoji { font-size: 2em; margin-bottom: 12px; }
-  .empty-state p { font-size: 0.9em; line-height: 1.5; }
-
-  /* 설정 버튼 */
-  .reset-btn {
-    display: block; margin: 20px auto; padding: 8px 16px;
-    border-radius: 8px; border: 1px solid var(--border);
-    background: none; color: var(--text-dim); font-size: 0.8em; cursor: pointer;
-  }
-  .reset-btn:hover { border-color: var(--red); color: var(--red); }
-
-  .hidden { display: none; }
-
-  @media (max-width: 360px) {
-    body { padding: 10px; }
-    .card-sentence { font-size: 1em; }
-  }
+  .header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px; }
+  .header h1 { font-size:1.3em; }
+  .header .streak { font-size:0.85em; color:var(--gold); font-weight:600; }
+  .tabs { display:flex; gap:4px; margin-bottom:16px; background:var(--card); border-radius:8px; padding:4px; }
+  .tab { flex:1; padding:8px; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600; color:var(--text-dim); border:none; background:none; text-align:center; transition:all 0.2s; }
+  .tab:hover { color:var(--text); }
+  .tab.active { background:var(--accent); color:#fff; }
+  .goal-bar { display:flex; align-items:center; gap:12px; margin-bottom:12px; padding:10px 16px; background:var(--card); border-radius:10px; border:1px solid var(--border); }
+  .goal-bar .count { font-size:1.3em; font-weight:700; color:var(--accent); min-width:55px; }
+  .goal-bar .bar-track { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .goal-bar .bar-fill { height:100%; background:var(--accent); border-radius:3px; transition:width 0.4s ease; }
+  .goal-bar.done .count { color:var(--green); }
+  .goal-bar.done .bar-fill { background:var(--green); }
+  .cat-badges { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .cat-badge { font-size:0.72em; padding:3px 9px; border-radius:10px; background:rgba(88,166,255,0.08); color:var(--text-dim); }
+  .cat-badge.active { background:rgba(88,166,255,0.18); color:var(--accent); font-weight:600; }
+  .card-area { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px; min-height:240px; }
+  .card-type { font-size:0.7em; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+  .card-cat { font-size:0.75em; color:var(--accent); margin-bottom:16px; }
+  .card-prompt { font-size:1.15em; line-height:1.7; margin-bottom:20px; word-break:keep-all; }
+  .card-prompt .blank { border-bottom:2px dashed var(--accent); padding:0 6px; min-width:50px; display:inline-block; color:var(--accent); }
+  .card-prompt .wrong { color:var(--red); text-decoration:line-through; }
+  .card-prompt .korean { color:var(--text); }
+  .card-rule { font-size:0.78em; color:var(--text-dim); margin-bottom:16px; padding:8px 12px; background:rgba(88,166,255,0.06); border-radius:8px; line-height:1.5; }
+  .answer-row { display:flex; gap:8px; }
+  .answer-input { flex:1; padding:12px 14px; border-radius:10px; border:2px solid var(--border); background:var(--bg); color:var(--text); font-size:1em; outline:none; transition:border-color 0.2s; }
+  .answer-input:focus { border-color:var(--accent); }
+  .answer-input.correct { border-color:var(--green); color:var(--green); }
+  .answer-input.wrong { border-color:var(--red); }
+  .answer-input::placeholder { color:var(--text-dim); opacity:0.5; }
+  .submit-btn { padding:12px 18px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-size:0.9em; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .submit-btn:active { opacity:0.8; }
+  .submit-btn:disabled { opacity:0.3; }
+  .feedback { margin-top:16px; padding:14px; border-radius:10px; font-size:0.9em; line-height:1.6; }
+  .feedback.correct-fb { background:rgba(63,185,80,0.1); border:1px solid rgba(63,185,80,0.3); }
+  .feedback.wrong-fb { background:rgba(248,81,73,0.1); border:1px solid rgba(248,81,73,0.3); }
+  .feedback .fb-label { font-weight:700; margin-bottom:4px; }
+  .feedback .fb-answer { margin-top:6px; color:var(--green); }
+  .feedback .fb-hint { color:var(--text-dim); margin-top:6px; font-size:0.85em; }
+  .next-btn { margin-top:12px; padding:12px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-size:0.95em; font-weight:600; cursor:pointer; width:100%; }
+  .next-btn:active { opacity:0.8; }
+  .celebration { text-align:center; padding:32px 20px; }
+  .celebration .emoji { font-size:3em; margin-bottom:12px; }
+  .celebration .title { font-size:1.3em; font-weight:700; margin-bottom:8px; }
+  .celebration .score { font-size:2.2em; font-weight:700; margin:12px 0; }
+  .celebration .detail { color:var(--text-dim); font-size:0.9em; }
+  .celebration .retry-btn { margin-top:24px; padding:12px 32px; border-radius:10px; border:1px solid var(--border); background:none; color:var(--text); font-size:0.9em; cursor:pointer; }
+  .empty-state { text-align:center; padding:40px 20px; color:var(--text-dim); }
+  .empty-state .emoji { font-size:2em; margin-bottom:12px; }
+  .empty-state p { font-size:0.9em; line-height:1.5; }
+  .reset-btn { display:block; margin:20px auto; padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:none; color:var(--text-dim); font-size:0.8em; cursor:pointer; }
+  .reset-btn:hover { border-color:var(--red); color:var(--red); }
+  @media(max-width:360px){ body{padding:10px;} .card-prompt{font-size:1em;} }
 </style>
 </head>
 <body>
-
 <div class="header">
-  <h1>오늘의 학습</h1>
-  <div class="subtitle" id="today-info"></div>
+  <h1>오늘의 드릴</h1>
+  <div class="streak" id="streak"></div>
 </div>
-
 <div class="tabs" id="lang-tabs">
   <button class="tab active" onclick="switchLang('english')">English</button>
   <button class="tab" onclick="switchLang('japanese')">日本語</button>
 </div>
-
-<div class="summary" id="summary"></div>
-
-<div class="mode-tabs" id="mode-tabs">
-  <button class="mode-tab active" onclick="switchMode('fill')">빈칸 채우기</button>
-  <button class="mode-tab" onclick="switchMode('fix')">문장 고치기</button>
-  <button class="mode-tab" onclick="switchMode('translate')">한→영 번역</button>
+<div class="goal-bar" id="goal-bar">
+  <div class="count" id="goal-count">0/15</div>
+  <div class="bar-track"><div class="bar-fill" id="goal-fill" style="width:0%"></div></div>
 </div>
-
-<div class="progress-text" id="progress-text"></div>
-<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-
+<div class="cat-badges" id="cat-badges"></div>
 <div class="card-area" id="card-area"></div>
-
-<div class="stats-section" id="stats-section"></div>
-
 <button class="reset-btn" onclick="resetProgress()">학습 기록 초기화</button>
-
 <script>
 // ============================================================
 // 드릴 데이터 — 수업 분석 시 Claude가 업데이트합니다
@@ -242,7 +127,10 @@ const DRILL_DATA = {
           { type: "fix", wrong: "The other is so dangerous.", correct: "The others are so dangerous.", distractors: ["The other are so dangerous.", "The others is so dangerous."], hint: "여러 개 → the others + are", source: "3/18" },
           { type: "fix", wrong: "I went to Philippines.", correct: "I went to the Philippines.", distractors: ["I went to a Philippines.", "I went to Philippines country."], hint: "섬나라/연합국 → the 필수 (the Philippines, the US)", source: "3/20" },
           { type: "fix", wrong: "I transferred to boat.", correct: "I transferred to a boat.", distractors: ["I transferred to the boat.", "I transferred boat."], hint: "셀 수 있는 단수 명사 → 관사 a 필수", source: "3/20" },
-          { type: "fix", wrong: "There are a lot of beach.", correct: "There are a lot of beaches.", distractors: ["There are a lot of beach's.", "There is a lot of beaches."], hint: "a lot of + 복수명사", source: "3/20" }
+          { type: "fix", wrong: "There are a lot of beach.", correct: "There are a lot of beaches.", distractors: ["There are a lot of beach's.", "There is a lot of beaches."], hint: "a lot of + 복수명사", source: "3/20" },
+          { type: "fix", wrong: "cats teeth is so cute", correct: "Cats' teeth are so cute.", distractors: ["Cat's teeth is so cute.", "Cats teeth are so cute."], hint: "복수 소유격(Cats') + 복수 be동사(are)", source: "3/23" },
+          { type: "fix", wrong: "she has a lot of genre", correct: "she performs in many genres", distractors: ["she has a lot of genres", "she has many genre"], hint: "many + 복수명사 (genres)", source: "3/23" },
+          { type: "fix", wrong: "there are peoples that have shopping bags", correct: "There are people who have shopping bags.", distractors: ["There are peoples who have shopping bags.", "There are people that has shopping bags."], hint: "people은 이미 복수 (peoples X) + 사람 → who", source: "3/24" }
         ]
       },
       {
@@ -271,7 +159,10 @@ const DRILL_DATA = {
           { type: "translate", korean: "나는 문자를 전화보다 선호해.", answer: "I prefer texting to calling.", distractors: ["I prefer texting than calling.", "I prefer texting over calling."], hint: "prefer A to B", source: "3/19" },
           { type: "fix", wrong: "This is a map for the world.", correct: "This is a map of the world.", distractors: ["This is a map in the world.", "This is a map to the world."], hint: "map of the world (~의 지도)", source: "3/20" },
           { type: "fix", wrong: "I don't get up at time.", correct: "I don't get up on time.", distractors: ["I don't get up in time.", "I don't get up by time."], hint: "on time = 제시간에 (관용표현)", source: "3/20" },
-          { type: "fix", wrong: "It's about 20 minutes by work.", correct: "It's about 20 minutes on foot.", distractors: ["It's about 20 minutes by foot.", "It's about 20 minutes in walk."], hint: "on foot = 걸어서 (by work X)", source: "3/16" }
+          { type: "fix", wrong: "It's about 20 minutes by work.", correct: "It's about 20 minutes on foot.", distractors: ["It's about 20 minutes by foot.", "It's about 20 minutes in walk."], hint: "on foot = 걸어서 (by work X)", source: "3/16" },
+          { type: "fix", wrong: "when we love, we can win all about things", correct: "when we love, we can conquer all things", distractors: ["when we love, we can win all things about", "when we love, we can win about all things"], hint: "about 불필요 + conquer가 자연스러움", source: "3/23" },
+          { type: "fix", wrong: "if a movie not play cinema", correct: "If a movie is not playing at the cinema", distractors: ["If a movie not playing cinema", "If a movie is not play at cinema"], hint: "is not playing + at the cinema (전치사 + 관사)", source: "3/24" },
+          { type: "fix", wrong: "he asks me to go to the movie with together", correct: "he asks me to go to the movies with him", distractors: ["he asks me to go to movie together", "he asks me to go to the movie with together him"], hint: "movies=영화관, together→with him", source: "3/24" }
         ]
       },
       {
@@ -326,7 +217,9 @@ const DRILL_DATA = {
           { type: "fix", wrong: "It's easy to singing together.", correct: "It's easy to sing together.", distractors: ["It's easy singing together.", "It's easy to sang together."], hint: "to + 동사원형 (to + -ing 불가)", source: "3/13" },
           { type: "fill", sentence: "This song is easy to _____ together.", answer: "sing", options: ["singing", "sing", "sang"], hint: "to + 동사원형" },
           { type: "fix", wrong: "I don't like any sports to watching.", correct: "I don't like to watch any sports.", distractors: ["I don't like any sports watching.", "I don't like to watching any sports."], hint: "to + 동사원형 (to + -ing 불가) + 어순", source: "3/20" },
-          { type: "fix", wrong: "I want to be good at swim.", correct: "I want to be good at swimming.", distractors: ["I want to be good at to swim.", "I want to be good at swims."], hint: "good at + -ing (동명사 필수)", source: "3/20" }
+          { type: "fix", wrong: "I want to be good at swim.", correct: "I want to be good at swimming.", distractors: ["I want to be good at to swim.", "I want to be good at swims."], hint: "good at + -ing (동명사 필수)", source: "3/20" },
+          { type: "fix", wrong: "I enjoyed stay at home.", correct: "I enjoyed staying at home.", distractors: ["I enjoyed to stay at home.", "I enjoyed to staying at home."], hint: "enjoy + -ing (동명사 필수)", source: "3/23" },
+          { type: "fill", sentence: "I enjoyed _____ (stay) at home.", answer: "staying", options: ["stay", "staying", "to stay"], hint: "enjoy + -ing (동명사 필수)", source: "3/23" }
         ]
       },
       {
@@ -345,7 +238,11 @@ const DRILL_DATA = {
           { type: "fill", sentence: "The best way to _____ stress is exercise.", answer: "relieve", options: ["relief", "relieve", "relieving"], hint: "to + 동사원형. relief(명사) vs relieve(동사)", source: "3/19" },
           { type: "fix", wrong: "I want to relax in a silence place.", correct: "I want to relax in a quiet place.", distractors: ["I want to relax in a silent place.", "I want to relax in a quietly place."], hint: "quiet=조용한 환경, silent=소리 안 내는 사람/물체", source: "3/19" },
           { type: "fix", wrong: "Chocolate is the most fat food.", correct: "Chocolate is the most fattening food.", distractors: ["Chocolate is the most fatty food.", "Chocolate is the most fatter food."], hint: "fattening=살찌게 하는, fat=뚱뚱한(사람)", source: "3/19" },
-          { type: "fix", wrong: "I leave alone in Tokyo.", correct: "I live alone in Tokyo.", distractors: ["I leaving alone in Tokyo.", "I lived alone in Tokyo."], hint: "live=살다, leave=떠나다 (발음/스펠링 주의!)", source: "3/20" }
+          { type: "fix", wrong: "I leave alone in Tokyo.", correct: "I live alone in Tokyo.", distractors: ["I leaving alone in Tokyo.", "I lived alone in Tokyo."], hint: "live=살다, leave=떠나다 (발음/스펠링 주의!)", source: "3/20" },
+          { type: "fix", wrong: "I watched animation movie.", correct: "I watched an animated movie.", distractors: ["I watched a animation movie.", "I watched animating movie."], hint: "animated(형용사) vs animation(명사). 형용사+명사!", source: "3/23" },
+          { type: "fix", wrong: "I'm sure of our succeed.", correct: "I'm sure of our success.", distractors: ["I'm sure of our succeeding.", "I'm sure of our succeeded."], hint: "succeed(동사) vs success(명사). 전치사 뒤→명사", source: "3/24" },
+          { type: "fix", wrong: "I prefer free.", correct: "I prefer working freely.", distractors: ["I prefer free working.", "I prefer freedom working."], hint: "free(형용사) vs freely(부사). 동사 수식→부사", source: "3/24" },
+          { type: "fill", sentence: "I'm sure of our _____.", answer: "success", options: ["succeed", "success", "successful"], hint: "전치사 of 뒤에는 명사 (success)", source: "3/24" }
         ]
       },
       {
@@ -364,7 +261,9 @@ const DRILL_DATA = {
           { type: "fix", wrong: "Every time I forgot it.", correct: "Every time I forget it.", distractors: ["Every time I have forgot it.", "Every time I forgetting it."], hint: "현재 습관/반복 → 현재시제", source: "3/11" },
           { type: "translate", korean: "매번 깜빡해.", answer: "I forget it every time.", distractors: ["I forgot it every time.", "I am forgetting it every time."], hint: "현재 습관 → 현재시제 forget" },
           { type: "fix", wrong: "I have been to go camping five years ago.", correct: "I went camping five years ago.", distractors: ["I have gone to camping five years ago.", "I have been camping for five years ago."], hint: "과거 사실 → went. been+go 중복X", source: "3/12" },
-          { type: "fix", wrong: "I always preparing something for picnic.", correct: "I always prepare something for a picnic.", distractors: ["I always am preparing something for picnic.", "I always prepared something for picnic."], hint: "습관 → always + 단순현재", source: "3/12" }
+          { type: "fix", wrong: "I always preparing something for picnic.", correct: "I always prepare something for a picnic.", distractors: ["I always am preparing something for picnic.", "I always prepared something for picnic."], hint: "습관 → always + 단순현재", source: "3/12" },
+          { type: "fix", wrong: "I traveled to New Zealand and I have been hiking.", correct: "I traveled to New Zealand and went hiking.", distractors: ["I traveled to New Zealand and have gone hiking.", "I traveled to New Zealand and I was hiking."], hint: "과거 이야기 → 시제 일관성 (went hiking)", source: "3/23" },
+          { type: "fix", wrong: "My lifestyle was not changed.", correct: "My lifestyle did not change.", distractors: ["My lifestyle has not changed.", "My lifestyle is not changed."], hint: "자동사 change → 능동형. 수동태 X", source: "3/23" }
         ]
       },
       {
@@ -395,7 +294,10 @@ const DRILL_DATA = {
           { type: "fix", wrong: "I try to not eat sweets.", correct: "I try not to eat sweets.", distractors: ["I try not eat sweets.", "I not try to eat sweets."], hint: "try not to + 동사원형 (not의 위치)", source: "3/20" },
           { type: "fix", wrong: "On my own way I might go home.", correct: "On my way home, I saw a cat.", distractors: ["On my own way home, I saw a cat.", "In my way home, I saw a cat."], hint: "on my way home = 집에 가는 길에 (own 불필요)", source: "3/20" },
           { type: "fix", wrong: "I can play snorkeling.", correct: "I can go snorkeling.", distractors: ["I can do snorkeling.", "I can play snorkel."], hint: "활동 = go + -ing (play는 구기 스포츠만)", source: "3/20" },
-          { type: "fix", wrong: "Someone must have been called the police.", correct: "Someone must have called the police.", distractors: ["Someone must called the police.", "Someone must have call the police."], hint: "must have + p.p. (been 불필요)", source: "3/20" }
+          { type: "fix", wrong: "Someone must have been called the police.", correct: "Someone must have called the police.", distractors: ["Someone must called the police.", "Someone must have call the police."], hint: "must have + p.p. (been 불필요)", source: "3/20" },
+          { type: "fix", wrong: "Most of songs I like it.", correct: "I like most of her songs.", distractors: ["Most of songs I like.", "I like it most of songs."], hint: "어순: 주어+동사+목적어, 불필요한 it 제거", source: "3/23" },
+          { type: "fix", wrong: "I prefer good one thing.", correct: "I prefer one good thing.", distractors: ["I prefer one thing good.", "I prefer good thing one."], hint: "수량사(one) → 형용사(good) → 명사 어순", source: "3/24" },
+          { type: "fix", wrong: "her voices and she's melody", correct: "her voice and her melodies", distractors: ["her voice and she's melodies", "her voices and her melody"], hint: "voice 단수 + 소유격 통일(her) + melodies 복수", source: "3/23" }
         ]
       },
       {
@@ -498,6 +400,17 @@ const DRILL_DATA = {
           { type: "fix", wrong: "He helped me to carry the boxes.", correct: "He helped me carry the boxes.", distractors: ["He helped me carrying the boxes.", "He helped me carried the boxes."], hint: "help + 목적어 + 동사원형 (to 생략)", source: "3/19" },
           { type: "fill", sentence: "Can you help me _____ (clean) the kitchen?", answer: "clean", options: ["to clean", "clean", "cleaning"], hint: "help + 목적어 + 동사원형", source: "3/19" }
         ]
+      },
+      {
+        id: "much-many",
+        name: "much vs many",
+        severity: "mid",
+        rule: "불가산명사 → much / 가산명사 → many",
+        cards: [
+          { type: "fix", wrong: "I don't have many time.", correct: "I don't have much time.", distractors: ["I don't have a lot time.", "I don't have many times."], hint: "time=불가산명사 → much (many X)", source: "3/24" },
+          { type: "fill", sentence: "I don't have _____ time today.", answer: "much", options: ["many", "much", "a lot"], hint: "time=불가산 → much", source: "3/24" },
+          { type: "translate", korean: "시간이 많지 않아.", answer: "I don't have much time.", distractors: ["I don't have many time.", "I don't have a many time."], hint: "time=불가산명사 → much", source: "3/24" }
+        ]
       }
     ]
   },
@@ -537,7 +450,14 @@ const DRILL_DATA = {
           { type: "fix", wrong: "大勤した。(퇴근했다)", correct: "退勤(たいきん)した。", distractors: ["大勤(だいきん)した。", "大金(たいきん)した。"], hint: "퇴근=退勤(たいきん)", source: "3/20" },
           { type: "fix", wrong: "体を保証するために。(보호하기 위해)", correct: "体を保護(ほご)するために。", distractors: ["体を保証(ほしょう)するために。", "体を保険(ほけん)するために。"], hint: "保証=보증(guarantee), 保護=보호(protect)", source: "3/20" },
           { type: "fix", wrong: "皮膚化に通う。(피부과에 다니다)", correct: "皮膚科(ひふか)に通う。", distractors: ["皮膚化(ひふか)に通う。", "皮膚家(ひふか)に通う。"], hint: "科=과(department), 化=변화", source: "3/20" },
-          { type: "fill", sentence: "ナイアガラの_____。(폭포)", answer: "滝(たき)", options: ["パクブ", "滝(たき)", "川(かわ)"], hint: "폭포=滝(たき)", source: "3/20" }
+          { type: "fill", sentence: "ナイアガラの_____。(폭포)", answer: "滝(たき)", options: ["パクブ", "滝(たき)", "川(かわ)"], hint: "폭포=滝(たき)", source: "3/20" },
+          { type: "fix", wrong: "補助された。(구조되었다)", correct: "救助(きゅうじょ)された。", distractors: ["補助(ほじょ)された。", "援助(えんじょ)された。"], hint: "補助=보조/지원, 救助=구조(rescue)", source: "3/24" },
+          { type: "fix", wrong: "主術を受けた。(수술을 받았다)", correct: "手術(しゅじゅつ)を受けた。", distractors: ["主術(しゅじゅつ)を受けた。", "手述(しゅじゅつ)を受けた。"], hint: "수술=手術 (主 X → 手), 받다=受ける", source: "3/24" },
+          { type: "fix", wrong: "反忍が逃げた。(범인이 도망쳤다)", correct: "犯人(はんにん)が逃げた。", distractors: ["反忍(はんにん)が逃げた。", "犯忍(はんにん)が逃げた。"], hint: "범인=犯人(はんにん)", source: "3/24" },
+          { type: "fix", wrong: "対応された。(체포되었다)", correct: "逮捕(たいほ)された。", distractors: ["対応(たいおう)された。", "対捕(たいほ)された。"], hint: "対応=대응, 逮捕=체포", source: "3/24" },
+          { type: "fix", wrong: "殺そうとしたも当然だ。(~과 다름없다)", correct: "殺そうとしたも同然(どうぜん)だ。", distractors: ["殺そうとしたも当然(とうぜん)だ。", "殺そうとしたも同様(どうよう)だ。"], hint: "当然=당연(of course), 同然=~과 다름없다", source: "3/24" },
+          { type: "fix", wrong: "したいする。(걱정하다)", correct: "心配(しんぱい)する。", distractors: ["したいする。", "信配(しんぱい)する。"], hint: "걱정하다=心配する", source: "3/24" },
+          { type: "fill", sentence: "_____がある時は連絡してください。(볼일)", answer: "用(よう)", options: ["高養", "用(よう)", "要(よう)"], hint: "볼일이 있다=用がある/用事がある", source: "3/24" }
         ]
       },
       {
@@ -599,7 +519,10 @@ const DRILL_DATA = {
           { type: "fix", wrong: "退勤するができる。", correct: "退勤できる。", distractors: ["退勤するのができる。", "退勤するができます。"], hint: "する+ができる 중복! できる만으로 충분", source: "3/20" },
           { type: "fix", wrong: "何の装備なくて潜る。", correct: "何の装備もなくて潜る。", distractors: ["何の装備がなくて潜る。", "何も装備なくて潜る。"], hint: "何の~もない = 아무~도 없다 (も 필수)", source: "3/20" },
           { type: "fix", wrong: "3回と4回ほど行く。(3~4회)", correct: "3回か4回ほど行く。", distractors: ["3回と4回くらい行く。", "3回に4回ほど行く。"], hint: "~또는~ = か (と=~와~)", source: "3/20" },
-          { type: "fix", wrong: "風邪をひくないように。", correct: "風邪をひかないように。", distractors: ["風邪をひきないように。", "風邪をひけないように。"], hint: "五段動詞 ない形: ひく→ひかない", source: "3/20" }
+          { type: "fix", wrong: "風邪をひくないように。", correct: "風邪をひかないように。", distractors: ["風邪をひきないように。", "風邪をひけないように。"], hint: "五段動詞 ない形: ひく→ひかない", source: "3/20" },
+          { type: "fix", wrong: "帰る時間が起これる。(귀가 시간이 늦어지다)", correct: "帰る時間が遅くなる。", distractors: ["帰る時間が起きる。", "帰る時間が遅れる。"], hint: "遅(おそ)くなる = 늦어지다", source: "3/24" },
+          { type: "fix", wrong: "手術をもらった。", correct: "手術を受けた。", distractors: ["手術をした。", "手術をもらった。"], hint: "手術は「受ける」(もらう X)", source: "3/24" },
+          { type: "translate", korean: "볼일이 있을 때 연락해.", answer: "用がある時連絡して。", distractors: ["高養がある時連絡して。", "用事がない時連絡して。"], hint: "用がある/用事がある = 볼일이 있다", source: "3/24" }
         ]
       },
       {
@@ -650,7 +573,57 @@ const DRILL_DATA = {
           { type: "fix", wrong: "明日食べしようと思います。", correct: "明日食べようと思います。", distractors: ["明日食べしたいと思います。", "明日食べするつもりです。"], hint: "食べる→食べよう (しよう는 する의 의지형)", source: "3/12" },
           { type: "fill", sentence: "この本は読み_____。(읽기 쉽다)", answer: "やすい", options: ["やすい", "にくい", "たい"], hint: "동사 연용형 + やすい = ~하기 쉽다" },
           { type: "fill", sentence: "編み方を覚えたら_____できるよ。(쉽게)", answer: "簡単に", options: ["簡単に", "簡単な", "簡単で"], hint: "동사 수식 = 簡単に (부사형)" },
-          { type: "translate", korean: "이 단어는 외우기 쉬워.", answer: "この単語は覚えやすい。", distractors: ["この単語は覚えにくい。", "この単語は覚えたい。"], hint: "~やすい = 하기 쉽다" }
+          { type: "translate", korean: "이 단어는 외우기 쉬워.", answer: "この単語は覚えやすい。", distractors: ["この単語は覚えにくい。", "この単語は覚えたい。"], hint: "~やすい = 하기 쉽다" },
+          { type: "fix", wrong: "やるすぎやるやすい。", correct: "やりやすい。", distractors: ["やるやすい。", "やりすぎやすい。"], hint: "verb stem + やすい: やる→やり+やすい", source: "3/24" }
+        ]
+      },
+      {
+        id: "sou-mitai",
+        name: "そうだ vs みたい/ようだ",
+        severity: "mid",
+        rule: "そうだ(様態)=미래추측(~할것같다) / みたい・ようだ=과거실제사건추측(~인것같다)",
+        cards: [
+          { type: "fix", wrong: "おこらせそうです。(실제로 화나게 한 상황)", correct: "おこらせたみたいです。", distractors: ["おこらせそうだった。", "おこらせるみたいです。"], hint: "過去の実際の出来事 → みたい/ようだ (そうだ는 미래추측)", source: "3/23" },
+          { type: "fill", sentence: "雨が降り_____。(비가 올 것 같다 - 미래추측)", answer: "そうです", options: ["そうです", "みたいです", "ようです"], hint: "そうだ=미래추측/외관 (~할 것 같다)" },
+          { type: "fill", sentence: "彼を怒らせた_____。(화나게 한 것 같다 - 과거사실)", answer: "みたいです", options: ["そうです", "みたいです", "らしいです"], hint: "과거 실제 일어난 일 추측 → みたい/ようだ" },
+          { type: "translate", korean: "화나게 한 것 같아.", answer: "おこらせたみたいです。", distractors: ["おこらせそうです。", "おこらせたそうです。"], hint: "과거 실제 사건 → みたい (そうだ X)" },
+          { type: "fix", wrong: "風邪をひいたそうです。(자기가 걸린 것 같을 때)", correct: "風邪をひいたみたいです。", distractors: ["風邪をひきそうです。", "風邪をひいたらしいです。"], hint: "자신의 과거 경험 추측 → みたい (そうだ=전문/외관)", source: "3/23" }
+        ]
+      },
+      {
+        id: "causative",
+        name: "使役形 (させる/せる)",
+        severity: "mid",
+        rule: "怒られる(受身)=혼나다 / おこらせる(使役)=화나게하다 / 자기가 원인→使役",
+        cards: [
+          { type: "fix", wrong: "先生に怒られた。(자기가 화나게 한 경우)", correct: "先生をおこらせた。", distractors: ["先生がおこらせた。", "先生に怒った。"], hint: "怒られる=혼나다(受身), おこらせる=화나게하다(使役). 자기가 원인이면 使役", source: "3/23" },
+          { type: "fill", sentence: "友達を_____しまった。(기다리게 해버렸다)", answer: "待たせて", options: ["待たれて", "待たせて", "待って"], hint: "使役: 待つ→待たせる (기다리게 하다)" },
+          { type: "translate", korean: "엄마를 화나게 한 것 같아.", answer: "お母さんをおこらせたみたいです。", distractors: ["お母さんに怒られたみたいです。", "お母さんがおこらせたみたいです。"], hint: "자기가 원인 → 使役形 おこらせた + みたい" },
+          { type: "fill", sentence: "課題評価を_____と思う。(평가받고 있다)", answer: "されている", options: ["もらっている", "されている", "している"], hint: "評価をされている = 평가를 받고 있다 (受動が自然)", source: "3/23" }
+        ]
+      },
+      {
+        id: "shika-bakari",
+        name: "しか vs ばかり",
+        severity: "mid",
+        rule: "しか+否定文(~밖에 안) / ばかり+肯定文(~만/~뿐)",
+        cards: [
+          { type: "fix", wrong: "スマホしか見る。", correct: "スマホばかり見ている。", distractors: ["スマホしか見ている。", "スマホだけ見る。"], hint: "しか+否定文(~밖에 안~) vs ばかり+肯定文(~만)", source: "3/24" },
+          { type: "fill", sentence: "お菓子_____食べないで。(~만)", answer: "ばかり", options: ["しか", "ばかり", "だけ"], hint: "ばかり+否定命令도 가능 (뉘앙스: ~만)" },
+          { type: "fix", wrong: "水しか飲んでいる。", correct: "水しか飲んでいない。", distractors: ["水ばかり飲んでいない。", "水だけ飲んでいる。"], hint: "しか → 반드시 否定文 (~밖에 ~않다)", source: "3/24" },
+          { type: "translate", korean: "그 아이는 게임만 하고 있어.", answer: "あの子はゲームばかりしている。", distractors: ["あの子はゲームしかしている。", "あの子はゲームだけしている。"], hint: "ばかり+肯定文 = ~만 하고 있다" }
+        ]
+      },
+      {
+        id: "ichidan-past",
+        name: "一段動詞 過去形 / 한자동사",
+        severity: "mid",
+        rule: "一段動詞: 語幹+た (出る→出た, NOT 出った) / 太陽は昇る(起きるX)",
+        cards: [
+          { type: "fix", wrong: "熱が出った。", correct: "熱が出た。", distractors: ["熱が出たった。", "熱を出った。"], hint: "出る(一段動詞) → 出た (出った X)", source: "3/24" },
+          { type: "fix", wrong: "風がナウった。(감기가 나았다)", correct: "風邪(かぜ)が治(なお)った。", distractors: ["風が治った。", "風邪がナウった。"], hint: "風=바람, 風邪=감기, 治る=낫다", source: "3/24" },
+          { type: "fill", sentence: "太陽が_____。(해가 떴다)", answer: "昇った(のぼった)", options: ["起きた", "昇った(のぼった)", "上がった"], hint: "太陽は昇る(のぼる)/沈む(しずむ). 起きる는 사람 전용", source: "3/24" },
+          { type: "translate", korean: "감기가 드디어 나았어.", answer: "ようやく風邪が治った。", distractors: ["ようやく風が治った。", "ようやく風邪がナウった。"], hint: "風邪(かぜ)が治(なお)る = 감기가 낫다", source: "3/24" }
         ]
       }
     ]
@@ -658,409 +631,316 @@ const DRILL_DATA = {
 };
 
 // ============================================================
-// SRS 로직
+// 저장소 키
 // ============================================================
-const SRS_KEY = 'drill-srs-v1';
-const STATS_KEY = 'drill-stats-v1';
-const SRS_INTERVALS = [0, 1, 3, 7, 14]; // 레벨별 복습 간격(일)
+const SRS_KEY = 'drill-srs-v2';
+const STATS_KEY = 'drill-stats-v2';
+const ERRORS_KEY = 'drill-cat-errors-v1';
+const SRS_INTERVALS = [0, 1, 3, 7, 14];
 
-function loadSRS() {
-  try { return JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch { return {}; }
-}
-function saveSRS(data) { localStorage.setItem(SRS_KEY, JSON.stringify(data)); }
+function loadSRS() { try { return JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch { return {}; } }
+function saveSRS(d) { localStorage.setItem(SRS_KEY, JSON.stringify(d)); }
+function loadStats() { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || { streak:0, lastDate:null, totalReviewed:0 }; } catch { return { streak:0, lastDate:null, totalReviewed:0 }; } }
+function saveStats(d) { localStorage.setItem(STATS_KEY, JSON.stringify(d)); }
+function loadCatErrors() { try { return JSON.parse(localStorage.getItem(ERRORS_KEY)) || {}; } catch { return {}; } }
+function saveCatErrors(d) { localStorage.setItem(ERRORS_KEY, JSON.stringify(d)); }
 
-function loadStats() {
-  try { return JSON.parse(localStorage.getItem(STATS_KEY)) || { streak: 0, lastDate: null, totalReviewed: 0, mastered: 0 }; }
-  catch { return { streak: 0, lastDate: null, totalReviewed: 0, mastered: 0 }; }
-}
-function saveStats(data) { localStorage.setItem(STATS_KEY, JSON.stringify(data)); }
+function getToday() { return new Date().toISOString().slice(0,10); }
+function daysBetween(a,b) { return Math.floor((new Date(b)-new Date(a))/86400000); }
+function getCardId(catId,idx) { return catId+':'+idx; }
+function getCardState(srs,cid) { return srs[cid] || { level:0, lastReview:null }; }
 
-function getCardId(catId, cardIdx) { return `${catId}:${cardIdx}`; }
-
-function getToday() {
-  const d = new Date();
-  return d.toISOString().slice(0, 10);
-}
-
-function daysBetween(a, b) {
-  return Math.floor((new Date(b) - new Date(a)) / 86400000);
-}
-
-function getCardState(srs, cardId) {
-  return srs[cardId] || { level: 0, lastReview: null };
-}
-
-function isDueToday(state, today) {
-  if (!state.lastReview) return true;
-  if (state.level >= SRS_INTERVALS.length) return false; // 마스터
-  const interval = SRS_INTERVALS[state.level];
-  return daysBetween(state.lastReview, today) >= interval;
-}
-
-function getDueCards(lang, mode) {
-  const srs = loadSRS();
-  const today = getToday();
+// ============================================================
+// Top 3 취약 카테고리 선정
+// ============================================================
+function getTopCategories(lang, n) {
+  n = n || 3;
+  const errors = loadCatErrors();
   const cats = DRILL_DATA[lang]?.categories || [];
-  const due = [];
-  const newCards = [];
+  const srs = loadSRS();
 
-  cats.forEach(cat => {
-    cat.cards.forEach((card, idx) => {
-      if (mode && card.type !== mode) return;
-      const cardId = getCardId(cat.id, idx);
-      const state = getCardState(srs, cardId);
-      if (state.level >= SRS_INTERVALS.length) return; // 마스터 완료
-      if (isDueToday(state, today)) {
-        if (!state.lastReview) {
-          newCards.push({ card, cat, cardId, state });
-        } else {
-          due.push({ card, cat, cardId, state });
-        }
-      }
+  const scored = cats.map(cat => {
+    // 누적 오답 횟수
+    const errCount = errors[cat.id] || 0;
+    // 현재 레벨 0인 카드 수 (리셋된 것 = 틀린 것)
+    let resetCount = 0;
+    cat.cards.forEach((_, idx) => {
+      const s = getCardState(srs, getCardId(cat.id, idx));
+      if (s.lastReview && s.level === 0) resetCount++;
     });
+    // severity 보너스
+    const sevBonus = cat.severity === 'high' ? 10 : 0;
+    return { cat, score: errCount + resetCount * 3 + sevBonus };
   });
 
-  // severity high 카드 우선, 그다음 레벨 낮은 것 우선
-  const severityOrder = { high: 0, mid: 1 };
-  const sorter = (a, b) => {
-    const sa = severityOrder[a.cat.severity] ?? 2;
-    const sb = severityOrder[b.cat.severity] ?? 2;
-    if (sa !== sb) return sa - sb;
-    return a.state.level - b.state.level;
-  };
-
-  due.sort(sorter);
-  newCards.sort(sorter);
-
-  return [...due, ...newCards];
+  scored.sort((a,b) => b.score - a.score);
+  return scored.slice(0, n).map(s => s.cat);
 }
 
-function recordAnswer(cardId, isCorrect) {
+// ============================================================
+// 일일 카드 선정: 카테고리당 5장
+// ============================================================
+function getDailyCards(lang) {
+  const topCats = getTopCategories(lang, 3);
   const srs = loadSRS();
-  const state = getCardState(srs, cardId);
+  const cards = [];
 
-  if (isCorrect) {
-    state.level = Math.min(state.level + 1, SRS_INTERVALS.length);
-  } else {
-    state.level = 0;
+  topCats.forEach(cat => {
+    const catCards = cat.cards.map((card, idx) => ({
+      card, cat,
+      cardId: getCardId(cat.id, idx),
+      state: getCardState(srs, getCardId(cat.id, idx))
+    }));
+    // 가장 약한 카드 우선 (레벨 낮은 순 → 미학습 → 나머지)
+    catCards.sort((a,b) => {
+      if (!a.state.lastReview && b.state.lastReview) return 1;
+      if (a.state.lastReview && !b.state.lastReview) return -1;
+      return a.state.level - b.state.level;
+    });
+    cards.push(...catCards.slice(0, 5));
+  });
+
+  // 카테고리 섞되 같은 카테고리 연속 방지
+  const shuffled = [];
+  const buckets = {};
+  cards.forEach(c => {
+    const k = c.cat.id;
+    if (!buckets[k]) buckets[k] = [];
+    buckets[k].push(c);
+  });
+  const keys = Object.keys(buckets);
+  let round = 0;
+  while (shuffled.length < cards.length && round < 20) {
+    keys.forEach(k => {
+      if (buckets[k].length > 0) shuffled.push(buckets[k].shift());
+    });
+    round++;
   }
-  state.lastReview = getToday();
-  srs[cardId] = state;
-  saveSRS(srs);
+  return shuffled;
+}
 
-  // 통계 업데이트
-  const stats = loadStats();
-  stats.totalReviewed++;
-  const today = getToday();
-  if (stats.lastDate === today) {
-    // 같은 날
-  } else if (stats.lastDate && daysBetween(stats.lastDate, today) === 1) {
-    stats.streak++;
-  } else if (stats.lastDate !== today) {
-    stats.streak = 1;
-  }
-  stats.lastDate = today;
+// ============================================================
+// 정답 체크
+// ============================================================
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/[.,!?;:'"。、！？「」『』（）()\u3000]/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
 
-  // 마스터 수 계산
-  let mastered = 0;
-  Object.values(srs).forEach(s => { if (s.level >= SRS_INTERVALS.length) mastered++; });
-  stats.mastered = mastered;
+function checkAnswer(input, correct) {
+  const ni = normalize(input);
+  const answers = Array.isArray(correct) ? correct : [correct];
+  return answers.some(a => ni === normalize(a));
+}
 
-  saveStats(stats);
+function getCorrectDisplay(correct) {
+  return Array.isArray(correct) ? correct[0] : correct;
 }
 
 // ============================================================
 // 앱 상태
 // ============================================================
 let currentLang = 'english';
-let currentMode = null; // null = 전체, 'fill', 'fix', 'translate'
 let queue = [];
 let queueIndex = 0;
 let sessionCorrect = 0;
-let sessionTotal = 0;
 let answered = false;
+let topCats = [];
 
 // ============================================================
-// UI 렌더링
+// UI
 // ============================================================
 function switchLang(lang) {
   currentLang = lang;
   document.querySelectorAll('#lang-tabs .tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('#lang-tabs .tab').forEach(t => {
-    if ((lang === 'english' && t.textContent === 'English') ||
-        (lang === 'japanese' && t.textContent === '日本語')) t.classList.add('active');
+    if ((lang==='english' && t.textContent==='English') ||
+        (lang==='japanese' && t.textContent==='日本語')) t.classList.add('active');
   });
-  startSession();
-}
-
-function switchMode(mode) {
-  currentMode = currentMode === mode ? null : mode;
-  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-  if (currentMode) {
-    document.querySelectorAll('.mode-tab').forEach(t => {
-      const m = t.textContent.includes('빈칸') ? 'fill' : t.textContent.includes('고치기') ? 'fix' : 'translate';
-      if (m === currentMode) t.classList.add('active');
-    });
-  }
   startSession();
 }
 
 function startSession() {
-  queue = getDueCards(currentLang, currentMode);
+  topCats = getTopCategories(currentLang, 3);
+  queue = getDailyCards(currentLang);
   queueIndex = 0;
   sessionCorrect = 0;
-  sessionTotal = 0;
   answered = false;
-  renderSummary();
+  renderStreak();
+  renderCatBadges();
+  renderGoal();
   renderCard();
-  renderStats();
 }
 
-function renderSummary() {
-  const srs = loadSRS();
+function renderStreak() {
   const stats = loadStats();
-  const cats = DRILL_DATA[currentLang]?.categories || [];
-  let totalCards = 0;
-  let reviewCount = 0;
-  let newCount = 0;
-  const today = getToday();
-
-  cats.forEach(cat => {
-    cat.cards.forEach((card, idx) => {
-      totalCards++;
-      const cid = getCardId(cat.id, idx);
-      const state = getCardState(srs, cid);
-      if (state.level >= SRS_INTERVALS.length) return;
-      if (isDueToday(state, today)) {
-        if (!state.lastReview) newCount++;
-        else reviewCount++;
-      }
-    });
-  });
-
-  document.getElementById('today-info').textContent =
-    `복습 ${reviewCount}장 / 새 카드 ${newCount}장 / 전체 ${totalCards}장`;
-
-  document.getElementById('summary').innerHTML = `
-    <div class="stat-card">
-      <div class="value" style="color:var(--gold)">${stats.streak || 0}일</div>
-      <div class="label">연속 학습</div>
-    </div>
-    <div class="stat-card">
-      <div class="value" style="color:var(--green)">${stats.mastered || 0}장</div>
-      <div class="label">마스터</div>
-    </div>
-    <div class="stat-card">
-      <div class="value">${stats.totalReviewed || 0}</div>
-      <div class="label">총 복습</div>
-    </div>
-  `;
+  const s = stats.streak || 0;
+  document.getElementById('streak').textContent = s > 0 ? s + '일 연속' : '';
 }
 
-function renderProgress() {
-  const total = queue.length;
-  const current = Math.min(queueIndex + 1, total);
-  document.getElementById('progress-text').textContent =
-    total > 0 ? `${current} / ${total}` : '';
-  document.getElementById('progress-fill').style.width =
-    total > 0 ? `${(current / total) * 100}%` : '0%';
+function renderCatBadges() {
+  const el = document.getElementById('cat-badges');
+  el.innerHTML = topCats.map((cat, i) => {
+    const current = queueIndex < queue.length ? queue[queueIndex].cat.id : '';
+    const active = cat.id === current ? ' active' : '';
+    return `<span class="cat-badge${active}">${cat.name}</span>`;
+  }).join('');
+}
+
+function renderGoal() {
+  const done = Math.min(queueIndex, queue.length);
+  const total = queue.length || 15;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('goal-count').textContent = done + '/' + total;
+  document.getElementById('goal-fill').style.width = pct + '%';
+  const bar = document.getElementById('goal-bar');
+  if (done >= total) bar.classList.add('done');
+  else bar.classList.remove('done');
 }
 
 function renderCard() {
-  renderProgress();
+  renderGoal();
+  renderCatBadges();
   const area = document.getElementById('card-area');
 
   if (queue.length === 0) {
-    area.innerHTML = `
-      <div class="empty-state">
-        <div class="emoji">🎉</div>
-        <p>오늘 복습할 카드가 없습니다!<br>새 수업 후 카드가 추가됩니다.</p>
-      </div>`;
+    area.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><p>카드가 없습니다.<br>수업 후 자동으로 추가됩니다.</p></div>';
     return;
   }
 
   if (queueIndex >= queue.length) {
-    const pct = sessionTotal > 0 ? Math.round(sessionCorrect / sessionTotal * 100) : 0;
-    area.innerHTML = `
-      <div class="empty-state">
-        <div class="emoji">✅</div>
-        <p>세션 완료!<br>정답률: ${pct}% (${sessionCorrect}/${sessionTotal})</p>
-        <button class="next-btn" style="margin-top:16px" onclick="startSession()">다시 시작</button>
-      </div>`;
+    const pct = queue.length > 0 ? Math.round(sessionCorrect / queue.length * 100) : 0;
+    const emoji = pct >= 80 ? '🔥' : pct >= 50 ? '👍' : '💪';
+    const msg = pct >= 80 ? '완벽에 가까워요!' : pct >= 50 ? '좋은 연습이었어요' : '틀린 문제 위주로 다시 해봐요';
+    area.innerHTML = `<div class="celebration">
+      <div class="emoji">${emoji}</div>
+      <div class="title">오늘의 드릴 완료</div>
+      <div class="score" style="color:${pct>=50?'var(--green)':'var(--orange)'}">${pct}%</div>
+      <div class="detail">${sessionCorrect}/${queue.length} 정답 · ${msg}</div>
+      <button class="retry-btn" onclick="startSession()">다시 도전</button>
+    </div>`;
+
+    // 스트릭 업데이트
+    const stats = loadStats();
+    const today = getToday();
+    if (stats.lastDate !== today) {
+      if (stats.lastDate && daysBetween(stats.lastDate, today) === 1) stats.streak = (stats.streak||0)+1;
+      else if (!stats.lastDate || daysBetween(stats.lastDate, today) > 1) stats.streak = 1;
+      stats.lastDate = today;
+      saveStats(stats);
+      renderStreak();
+    }
     return;
   }
 
   const { card, cat } = queue[queueIndex];
   answered = false;
 
-  if (card.type === 'fill') renderFill(card, cat);
-  else if (card.type === 'fix') renderFix(card, cat);
-  else if (card.type === 'translate') renderTranslate(card, cat);
-}
+  const typeLabel = card.type === 'fill' ? '빈칸 채우기' : card.type === 'fix' ? '문장 고치기' : '번역하기';
+  let promptHtml = '';
+  let placeholder = '';
 
-function renderFill(card, cat) {
-  const area = document.getElementById('card-area');
-  const sentenceHtml = card.sentence.replace('_____', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
-  const shuffled = [...card.options].sort(() => Math.random() - 0.5);
+  if (card.type === 'fill') {
+    promptHtml = card.sentence.replace('_____', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+    placeholder = '빈칸에 들어갈 답을 입력';
+  } else if (card.type === 'fix') {
+    promptHtml = '<span class="wrong">' + card.wrong + '</span>';
+    placeholder = '올바른 문장을 입력';
+  } else {
+    promptHtml = '<span class="korean">' + card.korean + '</span>';
+    placeholder = currentLang === 'english' ? 'English로 번역' : '日本語で翻訳';
+  }
 
   area.innerHTML = `
-    <div class="card-category">${cat.name}</div>
-    <div class="card-sentence">${sentenceHtml}</div>
-    <div class="options" id="options">
-      ${shuffled.map(opt => `
-        <button class="opt-btn" onclick="answerFill(this, ${JSON.stringify(opt).replace(/"/g, '&quot;')})">${opt}</button>
-      `).join('')}
+    <div class="card-type">${typeLabel}</div>
+    <div class="card-cat">${cat.name}</div>
+    <div class="card-prompt">${promptHtml}</div>
+    <div class="card-rule">${cat.rule}</div>
+    <div class="answer-row">
+      <input class="answer-input" id="answer-input" type="text" placeholder="${placeholder}" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">확인</button>
     </div>
-    <div id="feedback-slot"></div>
-  `;
+    <div id="feedback-slot"></div>`;
+
+  const input = document.getElementById('answer-input');
+  setTimeout(() => input.focus(), 100);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!answered) submitAnswer();
+      else nextCard();
+    }
+  });
 }
 
-function answerFill(btn, selected) {
+function submitAnswer() {
   if (answered) return;
-  answered = true;
-  sessionTotal++;
+  const input = document.getElementById('answer-input');
+  const val = input.value.trim();
+  if (!val) return;
 
-  const { card, cardId } = queue[queueIndex];
-  const answers = Array.isArray(card.answer) ? card.answer : [card.answer];
-  const isCorrect = answers.includes(selected);
+  answered = true;
+  const { card, cat, cardId } = queue[queueIndex];
+  const correctVal = card.type === 'fill' ? card.answer : (card.correct || card.answer);
+  const isCorrect = checkAnswer(val, correctVal);
+
   if (isCorrect) sessionCorrect++;
 
-  recordAnswer(cardId, isCorrect);
+  // SRS 업데이트
+  const srs = loadSRS();
+  const state = getCardState(srs, cardId);
+  if (isCorrect) { state.level = Math.min(state.level+1, SRS_INTERVALS.length); }
+  else { state.level = 0; }
+  state.lastReview = getToday();
+  srs[cardId] = state;
+  saveSRS(srs);
 
-  // 모든 버튼 처리
-  document.querySelectorAll('.opt-btn').forEach(b => {
-    if (answers.includes(b.textContent)) b.classList.add('correct');
-    else if (b === btn && !isCorrect) b.classList.add('wrong');
-    b.style.pointerEvents = 'none';
-  });
+  // 카테고리 오답 추적
+  if (!isCorrect) {
+    const errs = loadCatErrors();
+    errs[cat.id] = (errs[cat.id]||0) + 1;
+    saveCatErrors(errs);
+  }
 
-  // 빈칸에 선택한 답 표시
-  const blank = document.querySelector('.blank');
-  const displayAnswer = isCorrect ? selected : answers[0];
-  if (blank) { blank.textContent = displayAnswer; blank.style.color = isCorrect ? 'var(--green)' : 'var(--red)'; }
+  // 통계
+  const stats = loadStats();
+  stats.totalReviewed = (stats.totalReviewed||0) + 1;
+  saveStats(stats);
 
-  showFeedback(isCorrect, answers.join(' / '), card.hint);
-}
+  // UI 피드백
+  input.classList.add(isCorrect ? 'correct' : 'wrong');
+  input.disabled = true;
+  document.getElementById('submit-btn').disabled = true;
 
-function renderFix(card, cat) {
-  const area = document.getElementById('card-area');
-  const options = [card.correct, ...(card.distractors || [])].sort(() => Math.random() - 0.5);
-
-  area.innerHTML = `
-    <div class="card-category">${cat.name}</div>
-    <div style="font-size:0.8em;color:var(--text-dim);margin-bottom:8px">올바른 문장을 고르세요</div>
-    <div class="card-sentence"><span class="wrong-mark">${card.wrong}</span></div>
-    <div class="options" id="options">
-      ${options.map(opt => `
-        <button class="opt-btn" onclick="answerChoice(this, ${JSON.stringify(opt).replace(/"/g, '&quot;')}, ${JSON.stringify(card.correct).replace(/"/g, '&quot;')})">${opt}</button>
-      `).join('')}
-    </div>
-    <div id="feedback-slot"></div>
-  `;
-}
-
-function renderTranslate(card, cat) {
-  const area = document.getElementById('card-area');
-  const correctAnswer = card.correct || card.answer;
-  const options = [correctAnswer, ...(card.distractors || [])].sort(() => Math.random() - 0.5);
-
-  area.innerHTML = `
-    <div class="card-category">${cat.name}</div>
-    <div style="font-size:0.8em;color:var(--text-dim);margin-bottom:8px">영어로 번역하면?</div>
-    <div class="card-korean">${card.korean}</div>
-    <div class="options" id="options">
-      ${options.map(opt => `
-        <button class="opt-btn" onclick="answerChoice(this, ${JSON.stringify(opt).replace(/"/g, '&quot;')}, ${JSON.stringify(correctAnswer).replace(/"/g, '&quot;')})">${opt}</button>
-      `).join('')}
-    </div>
-    <div id="feedback-slot"></div>
-  `;
-}
-
-function answerChoice(btn, selected, correct) {
-  if (answered) return;
-  answered = true;
-  sessionTotal++;
-
-  const isCorrect = selected === correct;
-  if (isCorrect) sessionCorrect++;
-
-  const { card, cardId } = queue[queueIndex];
-  recordAnswer(cardId, isCorrect);
-
-  document.querySelectorAll('.opt-btn').forEach(b => {
-    if (b.textContent === correct) b.classList.add('correct');
-    else if (b === btn && !isCorrect) b.classList.add('wrong');
-    b.style.pointerEvents = 'none';
-  });
-
-  showFeedback(isCorrect, correct, card.hint);
-}
-
-function showFeedback(isCorrect, correct, hint) {
+  const display = getCorrectDisplay(correctVal);
   const slot = document.getElementById('feedback-slot');
   slot.innerHTML = `
     <div class="feedback ${isCorrect ? 'correct-fb' : 'wrong-fb'}">
       <div class="fb-label">${isCorrect ? '✓ 정답!' : '✗ 오답'}</div>
-      ${!isCorrect ? `<div class="fb-correct">→ ${correct}</div>` : ''}
-      <div class="fb-hint">${hint}</div>
+      ${!isCorrect ? '<div class="fb-answer">→ ' + display + '</div>' : ''}
+      <div class="fb-hint">${card.hint}</div>
     </div>
-    <button class="next-btn" onclick="nextCard()">다음 →</button>
-  `;
+    <button class="next-btn" onclick="nextCard()">다음 →</button>`;
 }
 
 function nextCard() {
   queueIndex++;
   renderCard();
-  renderSummary();
-}
-
-function normalize(s) {
-  return s.toLowerCase().replace(/[.,!?;:'"]/g, '').replace(/\s+/g, ' ').trim();
-}
-
-function renderStats() {
-  const srs = loadSRS();
-  const cats = DRILL_DATA[currentLang]?.categories || [];
-  let total = 0, mastered = 0, inProgress = 0, newCount = 0;
-
-  cats.forEach(cat => {
-    cat.cards.forEach((card, idx) => {
-      total++;
-      const cid = getCardId(cat.id, idx);
-      const state = getCardState(srs, cid);
-      if (state.level >= SRS_INTERVALS.length) mastered++;
-      else if (state.lastReview) inProgress++;
-      else newCount++;
-    });
-  });
-
-  document.getElementById('stats-section').innerHTML = `
-    <h2>카드 현황</h2>
-    <div class="stats-grid">
-      <div class="stats-item"><div class="s-value" style="color:var(--green)">${mastered}</div><div class="s-label">마스터</div></div>
-      <div class="stats-item"><div class="s-value" style="color:var(--accent)">${inProgress}</div><div class="s-label">학습 중</div></div>
-      <div class="stats-item"><div class="s-value">${newCount}</div><div class="s-label">새 카드</div></div>
-      <div class="stats-item"><div class="s-value">${total}</div><div class="s-label">전체</div></div>
-    </div>
-  `;
 }
 
 function resetProgress() {
-  if (confirm('학습 기록을 모두 초기화하시겠습니까?')) {
+  if (confirm('학습 기록을 모두 초기화할까요?')) {
     localStorage.removeItem(SRS_KEY);
     localStorage.removeItem(STATS_KEY);
+    localStorage.removeItem(ERRORS_KEY);
     startSession();
   }
 }
 
-// PWA 서비스 워커 등록
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./drill-sw.js').catch(() => {});
 }
 
-// 초기 실행
 startSession();
-</script>
-</body>
-</html>
+</script></body></html>
