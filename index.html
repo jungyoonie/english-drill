@@ -850,9 +850,12 @@ function renderCard() {
 
   if (card.type === 'fill') {
     promptHtml = card.sentence.replace('_____', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+    if (card.korean) promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + card.korean + '</div>';
     placeholder = '빈칸에 들어갈 답을 입력';
   } else if (card.type === 'fix') {
     promptHtml = '<span class="wrong">' + card.wrong + '</span>';
+    if (card.korean) promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">' + card.korean + '</div>';
+    else promptHtml += '<div style="margin-top:10px;font-size:0.85em;color:var(--text-dim)">→ ' + card.hint + '</div>';
     placeholder = '올바른 문장을 입력';
   } else {
     promptHtml = '<span class="korean">' + card.korean + '</span>';
