@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./drill-manifest.json">
+<title>오늘의 드릴</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-dim: #8b949e;
+    --accent: #58a6ff; --green: #3fb950; --red: #f85149;
+    --orange: #d29922; --gold: #f0c000;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); max-width:480px; margin:0 auto; padding:16px; min-height:100dvh; -webkit-tap-highlight-color:transparent; }
+  .header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px; }
+  .header h1 { font-size:1.3em; }
+  .header .streak { font-size:0.85em; color:var(--gold); font-weight:600; }
+  .tabs { display:flex; gap:4px; margin-bottom:16px; background:var(--card); border-radius:8px; padding:4px; }
+  .tab { flex:1; padding:8px; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600; color:var(--text-dim); border:none; background:none; text-align:center; transition:all 0.2s; }
+  .tab:hover { color:var(--text); }
+  .tab.active { background:var(--accent); color:#fff; }
+  .goal-bar { display:flex; align-items:center; gap:12px; margin-bottom:16px; padding:10px 16px; background:var(--card); border-radius:10px; border:1px solid var(--border); }
+  .goal-bar .count { font-size:1.3em; font-weight:700; color:var(--accent); min-width:55px; }
+  .goal-bar .bar-track { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .goal-bar .bar-fill { height:100%; background:var(--accent); border-radius:3px; transition:width 0.4s ease; }
+  .goal-bar.done .count { color:var(--green); }
+  .goal-bar.done .bar-fill { background:var(--green); }
+  .card-area { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px; min-height:220px; }
+  .card-cat { font-size:0.75em; color:var(--accent); margin-bottom:16px; }
+  .card-prompt { font-size:1.15em; line-height:1.7; margin-bottom:20px; word-break:keep-all; }
+  .answer-row { display:flex; gap:8px; }
+  .answer-input { flex:1; padding:12px 14px; border-radius:10px; border:2px solid var(--border); background:var(--bg); color:var(--text); font-size:1em; outline:none; transition:border-color 0.2s; }
+  .answer-input:focus { border-color:var(--accent); }
+  .answer-input.correct { border-color:var(--green); color:var(--green); }
+  .answer-input.wrong { border-color:var(--red); }
+  .answer-input::placeholder { color:var(--text-dim); opacity:0.5; }
+  .submit-btn { padding:12px 18px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-size:0.9em; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .submit-btn:active { opacity:0.8; }
+  .submit-btn:disabled { opacity:0.3; }
+  .feedback { margin-top:16px; padding:14px; border-radius:10px; font-size:0.9em; line-height:1.6; }
+  .feedback.correct-fb { background:rgba(63,185,80,0.1); border:1px solid rgba(63,185,80,0.3); }
+  .feedback.wrong-fb { background:rgba(248,81,73,0.1); border:1px solid rgba(248,81,73,0.3); }
+  .feedback .fb-label { font-weight:700; margin-bottom:4px; }
+  .feedback .fb-answer { margin-top:6px; color:var(--green); }
+  .feedback .fb-hint { color:var(--text-dim); margin-top:6px; font-size:0.85em; }
+  .next-btn { margin-top:12px; padding:12px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-size:0.95em; font-weight:600; cursor:pointer; width:100%; }
+  .next-btn:active { opacity:0.8; }
+  .celebration { text-align:center; padding:32px 20px; }
+  .celebration .emoji { font-size:3em; margin-bottom:12px; }
+  .celebration .title { font-size:1.3em; font-weight:700; margin-bottom:8px; }
+  .celebration .score { font-size:2.2em; font-weight:700; margin:12px 0; }
+  .celebration .detail { color:var(--text-dim); font-size:0.9em; }
+  .celebration .retry-btn { margin-top:24px; padding:12px 32px; border-radius:10px; border:1px solid var(--border); background:none; color:var(--text); font-size:0.9em; cursor:pointer; }
+  .empty-state { text-align:center; padding:40px 20px; color:var(--text-dim); }
+  .reset-btn { display:block; margin:20px auto; padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:none; color:var(--text-dim); font-size:0.8em; cursor:pointer; }
+  .reset-btn:hover { border-color:var(--red); color:var(--red); }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>오늘의 드릴</h1>
+  <div class="streak" id="streak"></div>
+</div>
+<div class="tabs" id="lang-tabs">
+  <button class="tab active" onclick="switchLang('en')">English</button>
+  <button class="tab" onclick="switchLang('ja')">日本語</button>
+</div>
+<div class="goal-bar" id="goal-bar">
+  <div class="count" id="goal-count">0/15</div>
+  <div class="bar-track"><div class="bar-fill" id="goal-fill" style="width:0%"></div></div>
+</div>
+<div class="card-area" id="card-area"></div>
+<button class="reset-btn" onclick="resetProgress()">학습 기록 초기화</button>
+
+<script>
+// ============================================================
+// 드릴 데이터 — 전부 한국어→타겟언어 번역
+// 수업 분석 시 Claude가 업데이트합니다
+// ============================================================
+const DRILL_DATA = {
+  en: [
+    { korean: "나는 로맨스 영화를 좋아해.", answer: "I like romance movies.", hint: "장르 일반론 → 복수, 관사 X", cat: "복수형/관사" },
+    { korean: "내 친구들 대부분은 결혼했어.", answer: "Most of my friends are married.", hint: "almost(거의) ≠ most of(대부분의)", cat: "어휘 혼동" },
+    { korean: "나는 온라인 쇼핑하는 걸 좋아해.", answer: "I like shopping online.", hint: "to + -ing 불가. shopping 또는 to shop", cat: "to/동명사" },
+    { korean: "우리나라는 의무 재활용이 필요해.", answer: "My country needs mandatory recycling.", hint: "단수 주어 → 동사+s", cat: "수일치" },
+    { korean: "내 몸이 매우 뻣뻣해.", answer: "My body is very stiff.", hint: "형용사 앞에 be동사 필수", cat: "be동사" },
+    { korean: "나는 뉴질랜드로 여행 갔어.", answer: "I traveled to New Zealand.", hint: "travel to + 장소", cat: "전치사" },
+    { korean: "나는 늦지 않으려고 노력해.", answer: "I try not to be late.", hint: "try not to be + 형용사", cat: "be동사" },
+    { korean: "시간이 많지 않아.", answer: "I don't have much time.", hint: "time=불가산명사 → much (many X)", cat: "much/many" },
+    { korean: "나는 성공하고 싶어.", answer: "I want to succeed.", hint: "success=명사, succeed=동사", cat: "품사" },
+    { korean: "나는 차라리 집에서 요리할래.", answer: "I would rather cook at home.", hint: "would rather + 동사원형 (to X)", cat: "would rather" },
+    { korean: "요즘 커피를 안 마시려고 노력 중이야.", answer: "I have been trying not to drink coffee recently.", hint: "과거~현재 지속 → 현재완료진행", cat: "시제" },
+    { korean: "그녀는 어떤 장르든 노래할 수 있어.", answer: "She can sing any genre.", hint: "whatever/any genre", cat: "표현" },
+    { korean: "나에게 거짓말하는 사람은 싫어.", answer: "I don't like someone who lies to me.", hint: "lie to + 사람, 3인칭 단수 lies", cat: "전치사/수일치" },
+    { korean: "그 영화를 보고 싶게 만드는 건 배우야.", answer: "The biggest thing that makes me want to watch a movie is the actor.", hint: "makes me want to 패턴", cat: "표현" },
+    { korean: "나는 내 속도로 자유롭게 일하고 싶어.", answer: "I want to work freely at my own pace.", hint: "free=형용사, freely=부사, at my own pace", cat: "품사/표현" },
+    { korean: "나는 더 이상 이것이 필요 없어.", answer: "I no longer need this.", hint: "no longer + 동사 (be동사 불필요)", cat: "표현" },
+    { korean: "나는 직장을 잃을까봐 걱정돼.", answer: "I'm concerned about losing my job.", hint: "concerned about + -ing (동명사)", cat: "전치사" },
+    { korean: "토마토 베이스 빼고 다 좋아해.", answer: "I like all pastas except for tomato-based.", hint: "재료가 먼저: tomato-based. except for", cat: "표현" },
+    { korean: "그는 더 이상 이 동네에 살지 않아.", answer: "He no longer lives in this neighborhood.", hint: "lives(수일치) + in(전치사)", cat: "수일치" },
+    { korean: "더 이상 필요 없는 파일들을 삭제해.", answer: "Delete files that are no longer needed.", hint: "관계절 that + 수동태 are needed (not are need)", cat: "관계절/수동태" },
+    { korean: "어렸을 때 나는 의사가 되고 싶었어.", answer: "When I was a child, I wanted to be a doctor.", hint: "과거 맥락이면 시제 일관성: want → wanted", cat: "시제" },
+    { korean: "나는 새 직장에 적응하는 게 힘들었어.", answer: "I had a hard time adjusting to my new job.", hint: "spend X → have a hard time + -ing (동명사)", cat: "표현" },
+    { korean: "소스를 조금 더 넣어줘.", answer: "Add a little more sauce.", hint: "sauce(소스) ≠ source(출처). 스펠링 주의", cat: "스펠링" },
+    { korean: "아이스워터를 너무 많이 마시지 않으려고 해.", answer: "I try not to drink too much iced water.", hint: "try not to + 동사 (drink not X)", cat: "어순" },
+    { korean: "물을 많이 마시는 것은 건강에 좋아.", answer: "Drinking a lot of water is good for our health.", hint: "동명사 주어(Drinking...) + it 불필요", cat: "동명사 주어" },
+    { korean: "그 여자는 카페에 갔었어.", answer: "The girl has been to a cafe.", hint: "has been to + 장소 (to 필수)", cat: "전치사" },
+    { korean: "내 생일은 1월 4일이야.", answer: "My birthday is on January 4th.", hint: "on + 특정 날짜 (month+day)", cat: "전치사" },
+    { korean: "이 셔츠 어때?", answer: "How about this shirt?", hint: "How about + 명사/동명사 (제안/추천)", cat: "표현" },
+    { korean: "요즘 재미로 요리하고 있어.", answer: "I have been cooking for fun recently.", hint: "최근 지속 → have been + -ing (현재완료진행)", cat: "시제" },
+    { korean: "나는 혼자 쇼핑하는 걸 더 좋아해.", answer: "I prefer to shop alone.", hint: "to + 동사원형 (to shopping X!)", cat: "to/동명사" },
+    { korean: "같이 저녁 먹는 건 어때?", answer: "How about having dinner together?", hint: "how about + -ing (have X → having)", cat: "to/동명사" },
+    { korean: "조용히 있고 싶어.", answer: "I want to stay in silence.", hint: "in silence (with silence X)", cat: "전치사" }
+  ],
+  ja: [
+    { korean: "대본을 보면서 연습했어.", answer: "台本を見ながら練習した。", hint: "목적어 = を (の X)", cat: "조사" },
+    { korean: "친구를 우연히 만났어.", answer: "友達にたまたま会った。", hint: "会う는 に를 취함 (を X)", cat: "조사" },
+    { korean: "원가가 높아.", answer: "原価が高い。", hint: "原画(원본그림) ≠ 原価(원가)", cat: "한자" },
+    { korean: "발표를 할 수 있게 되었습니다.", answer: "プレゼンできるようになりました。", hint: "~できるようになる = 할 수 있게 되다", cat: "가능형" },
+    { korean: "이 제품은 전 세계에서 사랑받고 있습니다.", answer: "この製品は全世界で愛されています。", hint: "愛する→愛される(수동)", cat: "수동형" },
+    { korean: "거짓말하다.", answer: "嘘をつく。", hint: "嘘をする X → 嘘をつく", cat: "관용표현" },
+    { korean: "짧은 기간에 많이 늘었어.", answer: "短期間でたくさん上達した。", hint: "短時間(2~3시간) ≠ 短期間(며칠~몇 주)", cat: "한자" },
+    { korean: "환경이 바뀌어서 바빠졌다.", answer: "環境が変わって忙しくなった。", hint: "変わる=바뀌다, 帰る=돌아가다", cat: "한자" },
+    { korean: "참을 수밖에 없다.", answer: "我慢するしかない。", hint: "~するしかない = ~할 수밖에 없다", cat: "관용표현" },
+    { korean: "아직 먹지 않았어요.", answer: "まだ食べてないです。", hint: "まだ+ていない (완료부정)", cat: "문법" },
+    { korean: "풍邪가 드디어 나았다고 생각했는데 또 열이 났어.", answer: "ようやく風邪が治ったと思ったらまた熱が出た。", hint: "風(바람) ≠ 風邪(감기), 治る=낫다", cat: "한자" },
+    { korean: "수술을 받아서 안정되었대.", answer: "手術を受けてようやく落ち着いたんだって。", hint: "手術を受ける (もらう X)", cat: "관용표현" },
+    { korean: "스마트폰만 보고 있어.", answer: "スマホばかり見ている。", hint: "ばかり+肯定 vs しか+否定", cat: "문법" },
+    { korean: "솔직히 이해할 수 없어.", answer: "正直理解できない。", hint: "正直(부사) 뒤에 に 안 붙여도 OK", cat: "부사" },
+    { korean: "봄이 되니까 뭔가 시작하기 쉬워.", answer: "春になると何か始めやすい。", hint: "동사연용형+やすい = ~하기 쉽다", cat: "문법" },
+    { korean: "점심을 못 먹어서 배가 고팠어.", answer: "お昼を食べられなくて、お腹が空いた。", hint: "食べる→食べられる(가능형). 먹을 수 없어서", cat: "가능형" },
+    { korean: "매점 아직 열려있을까?", answer: "売店まだ開いているかな？", hint: "開いている(자동사/상태) vs 開けている(타동사)", cat: "자타동사" },
+    { korean: "늦을까봐 걱정하기보다 일찍 출발하는 게 안심이야.", answer: "遅刻の心配をするより早めに出発した方が安心だからね。", hint: "安心=심리적, 安全=물리적", cat: "어휘" },
+    { korean: "괜찮긴 한데…", answer: "大丈夫だけど…", hint: "な形容詞+だ+けど (だ 필수!)", cat: "문법" },
+    { korean: "창문이 열려 있어.", answer: "窓が開いている。", hint: "開いている(자동사/상태) = 열려있다. 開けている(타동사/동작) = 열고 있다 — 헷갈리기 쉬움!", cat: "자타동사" },
+    { korean: "집에서 가까우면 가까울수록 좋아.", answer: "家から近ければ近いほどいい。", hint: "～ば～ほど(同じ言葉), 家から(起点=から)", cat: "문법" },
+    { korean: "외국어는 공부하면 할수록 어려워.", answer: "外国語は勉強すればするほど難しい。", hint: "する→すれば、する+ほど", cat: "문법" },
+    { korean: "별로 좋지 않아.", answer: "あんまりよくない。", hint: "いい→よくない (否定形). いいじゃない X", cat: "い형용사" },
+    { korean: "그녀의 피아노 실력은 대단하다.", answer: "彼女のピアノの腕前は大したものだ。", hint: "大した+명사 = 대단한. 腕前(うでまえ)=실력", cat: "어휘" },
+    { korean: "이 정도의 상처라면 별것 아니야.", answer: "この程度の傷なら大したことないよ。", hint: "大したことない = 별거 아니야. 傷(きず)=상처", cat: "문법" },
+    { korean: "칭찬받는 걸 받아들이는 것도 중요해.", answer: "褒められることを受け止めることも大事だ。", hint: "受け止める=받아들이다, 褒められる=칭찬받다(수동)", cat: "어휘" },
+    { korean: "자신을 탓해도 도움이 안 돼.", answer: "自分を責めてもミスを減らすのに役立たない。", hint: "役立つ=도움이 되다(手伝い X), 責める=탓하다", cat: "어휘" }
+  ]
+};
+
+// ============================================================
+// 저장소
+// ============================================================
+const SRS_KEY = 'drill-srs-v4';
+const STATS_KEY = 'drill-stats-v4';
+const SRS_INTERVALS = [0, 1, 3, 7, 14];
+
+function load(k,d) { try { return JSON.parse(localStorage.getItem(k))||d; } catch { return d; } }
+function save(k,v) { localStorage.setItem(k, JSON.stringify(v)); }
+function getToday() { return new Date().toISOString().slice(0,10); }
+function daysBetween(a,b) { return Math.floor((new Date(b)-new Date(a))/86400000); }
+
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/\([^)]*\)/g, '').replace(/（[^）]*）/g, '')
+    .replace(/[.,!?;:'"。、！？「」『』\u3000]/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
+
+// ============================================================
+// 카드 선정: SRS 기반 15장
+// ============================================================
+function getDailyCards(lang) {
+  const cards = DRILL_DATA[lang] || [];
+  const srs = load(SRS_KEY, {});
+  const today = getToday();
+  const due = [];
+  const rest = [];
+
+  cards.forEach((card, idx) => {
+    const id = lang + ':' + idx;
+    const state = srs[id] || { level: 0, lastReview: null };
+    const item = { card, id, state, idx };
+
+    if (state.level >= SRS_INTERVALS.length) return; // 마스터
+    if (!state.lastReview) { due.push(item); return; }
+    const interval = SRS_INTERVALS[state.level];
+    if (daysBetween(state.lastReview, today) >= interval) due.push(item);
+    else rest.push(item);
+  });
+
+  // 약한 카드 우선 (레벨 낮은 순)
+  due.sort((a,b) => a.state.level - b.state.level);
+  // 15장 부족하면 rest에서 보충
+  const pool = [...due, ...rest].slice(0, 15);
+  // 셔플
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  return pool;
+}
+
+// ============================================================
+// 앱 상태
+// ============================================================
+let lang = 'en';
+let queue = [];
+let qi = 0;
+let correct = 0;
+let answered = false;
+let wrongLog = [];
+
+// ============================================================
+// UI
+// ============================================================
+function switchLang(l) {
+  lang = l;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    if ((l==='en' && t.textContent==='English')||(l==='ja' && t.textContent==='日本語')) t.classList.add('active');
+  });
+  startSession();
+}
+
+function startSession() {
+  queue = getDailyCards(lang);
+  qi = 0; correct = 0; answered = false; wrongLog = [];
+  renderStreak(); renderGoal(); renderCard();
+}
+
+function renderStreak() {
+  const s = load(STATS_KEY, {}).streak || 0;
+  document.getElementById('streak').textContent = s > 0 ? s+'일 연속' : '';
+}
+
+function renderGoal() {
+  const done = Math.min(qi, queue.length), total = queue.length || 15;
+  document.getElementById('goal-count').textContent = done+'/'+total;
+  document.getElementById('goal-fill').style.width = Math.round(done/total*100)+'%';
+  const bar = document.getElementById('goal-bar');
+  done >= total ? bar.classList.add('done') : bar.classList.remove('done');
+}
+
+function renderCard() {
+  renderGoal();
+  const area = document.getElementById('card-area');
+
+  if (!queue.length) {
+    area.innerHTML = '<div class="empty-state">📭<br>카드가 없습니다.</div>';
+    return;
+  }
+
+  if (qi >= queue.length) {
+    const pct = Math.round(correct/queue.length*100);
+    const emoji = pct>=80?'🔥':pct>=50?'👍':'💪';
+    const promptBtn = wrongLog.length ? `<button class="retry-btn" style="margin-top:16px;width:100%" onclick="copyPrompt()">📋 틀린 문제 피드백 복사</button><div id="copy-msg" style="font-size:0.8em;color:var(--green);text-align:center;display:none;margin-top:4px">복사됨!</div>` : '';
+    area.innerHTML = `<div class="celebration">
+      <div class="emoji">${emoji}</div>
+      <div class="title">오늘의 드릴 완료</div>
+      <div class="score" style="color:${pct>=50?'var(--green)':'var(--orange)'}">${pct}%</div>
+      <div class="detail">${correct}/${queue.length} 정답</div>
+      ${promptBtn}
+      <button class="retry-btn" style="margin-top:12px" onclick="startSession()">다시 도전</button>
+    </div>`;
+    // 스트릭
+    const stats = load(STATS_KEY, { streak:0, lastDate:null });
+    const today = getToday();
+    if (stats.lastDate !== today) {
+      stats.streak = (stats.lastDate && daysBetween(stats.lastDate,today)===1) ? (stats.streak||0)+1 : 1;
+      stats.lastDate = today;
+      save(STATS_KEY, stats);
+      renderStreak();
+    }
+    return;
+  }
+
+  const { card } = queue[qi];
+  answered = false;
+  const placeholder = lang==='en' ? 'English로 번역' : '日本語で翻訳';
+
+  area.innerHTML = `
+    <div class="card-cat">${card.cat}</div>
+    <div class="card-prompt">${card.korean}</div>
+    <div class="answer-row">
+      <input class="answer-input" id="ai" type="text" placeholder="${placeholder}" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="submit-btn" id="sb" onclick="submit()">확인</button>
+    </div>
+    <div id="fb"></div>`;
+  setTimeout(() => document.getElementById('ai').focus(), 100);
+}
+
+function submit() {
+  if (answered) return;
+  const input = document.getElementById('ai');
+  const val = input.value.trim();
+  if (!val) return;
+  answered = true;
+
+  const { card, id } = queue[qi];
+  const answers = Array.isArray(card.answer) ? card.answer : [card.answer];
+  const ni = normalize(val);
+  const ok = answers.some(a => ni === normalize(a));
+  if (ok) correct++;
+
+  // SRS
+  const srs = load(SRS_KEY, {});
+  const state = srs[id] || { level:0, lastReview:null };
+  state.level = ok ? Math.min(state.level+1, SRS_INTERVALS.length) : 0;
+  state.lastReview = getToday();
+  srs[id] = state;
+  save(SRS_KEY, srs);
+
+  if (!ok) wrongLog.push({ cat: card.cat, korean: card.korean, myAnswer: val, correct: answers[0], hint: card.hint });
+
+  input.classList.add(ok?'correct':'wrong');
+  input.disabled = true;
+  document.getElementById('sb').disabled = true;
+
+  document.getElementById('fb').innerHTML = `
+    <div class="feedback ${ok?'correct-fb':'wrong-fb'}">
+      <div class="fb-label">${ok?'✓ 정답!':'✗ 오답'}</div>
+      ${!ok?'<div class="fb-answer">→ '+answers[0]+'</div>':''}
+      <div class="fb-hint">${card.hint}</div>
+    </div>
+    <button class="next-btn" onclick="next()">다음 →</button>`;
+}
+
+function next() { qi++; renderCard(); }
+
+function copyPrompt() {
+  const l = lang==='en'?'영어':'일본어';
+  let t = l+' 드릴에서 틀린 문제 '+wrongLog.length+'개야. 각각 왜 틀렸는지 짧게 설명해주고, 비슷한 패턴으로 연습 문제 3개만 내줘.\n\n';
+  wrongLog.forEach((w,i) => {
+    t += (i+1)+'. ['+w.cat+'] '+w.korean+'\n   내 답: '+w.myAnswer+'\n   정답: '+w.correct+'\n   힌트: '+w.hint+'\n\n';
+  });
+  navigator.clipboard.writeText(t).then(() => {
+    const m = document.getElementById('copy-msg');
+    if(m){m.style.display='block';setTimeout(()=>m.style.display='none',2000);}
+  });
+}
+
+function resetProgress() {
+  if (confirm('학습 기록을 모두 초기화할까요?')) {
+    localStorage.removeItem(SRS_KEY);
+    localStorage.removeItem(STATS_KEY);
+    startSession();
+  }
+}
+
+// 글로벌 Enter 키
+document.addEventListener('keydown', function(e) {
+  if (e.key==='Enter' && !e.isComposing && e.keyCode!==229) {
+    if (answered) { e.preventDefault(); next(); }
+    else if (document.activeElement===document.getElementById('ai')) { e.preventDefault(); submit(); }
+  }
+});
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./drill-sw.js').catch(()=>{});
+startSession();
+</script>
+</body>
+</html>

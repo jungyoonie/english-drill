@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>어학 학습 대시보드</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --blue: #58a6ff;
+    --gold: #f0c000;
+    --red: #f85149;
+    --orange: #d29922;
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.6em; margin-bottom: 16px; }
+  h2 { font-size: 1.1em; color: var(--text-dim); margin-bottom: 12px; font-weight: 500; }
+
+  /* 탭 */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--card);
+    border-radius: 8px;
+    padding: 4px;
+    width: fit-content;
+  }
+  .tab {
+    padding: 8px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: var(--text-dim);
+    transition: all 0.2s;
+    border: none;
+    background: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* 요약 카드 */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .summary-card .value {
+    font-size: 2em;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .summary-card .label {
+    font-size: 0.8em;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* 캘린더 */
+  .calendar-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .calendar-nav {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .calendar-nav button {
+    background: var(--border);
+    border: none;
+    color: var(--text);
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+  }
+  .calendar-nav button:hover { background: var(--accent); }
+  .calendar-nav span { font-size: 0.9em; min-width: 100px; text-align: center; }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-day-label {
+    font-size: 0.7em;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 4px;
+  }
+  .cal-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.03);
+    position: relative;
+  }
+  .cal-cell.empty { background: none; }
+  .cal-cell.lesson { background: var(--green); color: #fff; font-weight: 600; }
+  .cal-cell.exercise { background: var(--blue); color: #fff; font-weight: 600; }
+  .cal-cell.both { background: var(--gold); color: #000; font-weight: 600; }
+  .cal-cell.today { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .cal-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 0.8em;
+    color: var(--text-dim);
+  }
+  .cal-legend span::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .cal-legend .leg-lesson::before { background: var(--green); }
+  .cal-legend .leg-exercise::before { background: var(--blue); }
+  .cal-legend .leg-both::before { background: var(--gold); }
+
+  /* 차트 섹션 */
+  .chart-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  /* 실수 패턴 바 차트 */
+  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .bar-label {
+    font-size: 0.8em;
+    width: 140px;
+    text-align: right;
+    flex-shrink: 0;
+    color: var(--text-dim);
+  }
+  .bar-track {
+    flex: 1;
+    height: 22px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #fff;
+    transition: width 0.5s ease;
+  }
+  .bar-fill.high { background: var(--red); }
+  .bar-fill.mid { background: var(--orange); }
+
+  /* 연습문제 스택 바 */
+  .stack-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    height: 160px;
+    padding: 0 20px;
+    justify-content: center;
+  }
+  .stack-col {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0;
+    flex: 0 0 80px;
+  }
+  .stack-segment {
+    width: 60px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #fff;
+    min-height: 2px;
+  }
+  .stack-segment.correct { background: var(--green); }
+  .stack-segment.almost { background: var(--orange); }
+  .stack-segment.wrong { background: var(--red); }
+  .stack-label {
+    margin-top: 6px;
+    font-size: 0.75em;
+    color: var(--text-dim);
+  }
+  .stack-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.8em;
+    color: var(--text-dim);
+    justify-content: center;
+  }
+  .stack-legend span::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .stack-legend .leg-correct::before { background: var(--green); }
+  .stack-legend .leg-almost::before { background: var(--orange); }
+  .stack-legend .leg-wrong::before { background: var(--red); }
+
+  /* 피드백 */
+  .feedback-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .feedback-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9em;
+  }
+  .feedback-item:last-child { border-bottom: none; }
+  .feedback-date {
+    font-size: 0.8em;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .feedback-text { color: var(--text-dim); line-height: 1.5; }
+
+  .hidden { display: none; }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .bar-label { width: 100px; font-size: 0.7em; }
+  }
+</style>
+</head>
+<body>
+
+<h1>어학 학습 대시보드</h1>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('english')">English</button>
+  <button class="tab" onclick="switchTab('japanese')">日本語</button>
+</div>
+
+<div id="dashboard-content"></div>
+
+<script>
+// ============================================================
+// 📊 학습 데이터 — 수업/연습 후 Claude가 여기를 업데이트합니다
+// ============================================================
+const STUDY_DATA = {
+  english: {
+    lessons: [
+      { date: "2026-03-03", corrections: 13, topics: ["would rather", "복수형", "전치사", "be동사 누락"] },
+      { date: "2026-03-06", corrections: 14, topics: ["there is no", "부사 위치", "명사/동사/형용사 구분"] },
+      { date: "2026-03-09", corrections: 9, topics: ["be wondering if", "수일치", "시제", "전치사"] },
+      { date: "2026-03-10", corrections: 12, topics: ["How long have you been ~ing", "to+동사원형 vs 동명사", "복수형", "명사/형용사 구분", "어순"] },
+      { date: "2026-03-11", corrections: 10, topics: ["What makes+A", "관사 누락", "현재시제/과거시제", "이중 비교급", "복수형", "these days"] },
+      { date: "2026-03-12", corrections: 16, topics: ["can't wait+to", "like+-ing 반복", "go+활동에 to 불필요", "have gone vs went", "비교급 어순", "with a view of", "always+현재시제"] },
+      { date: "2026-03-13", corrections: 12, topics: ["not meant to", "be동사 누락", "전치사(lie to/go to)", "복수형", "to+동사원형", "almost vs most of", "before+ago 중복"] },
+      { date: "2026-03-16", corrections: 12, topics: ["What kind of+A", "this day→these days(반복)", "관사 a 누락(반복)", "전치사 on weekend(반복)", "send+to", "어순(house with~)", "on foot", "convenient"] },
+      { date: "2026-03-18", corrections: 8, topics: ["have never+p.p.", "복수형(cookies/others)", "has/have 수일치", "부사위치(that much)", "형용사/부사(extreme)", "전치사 to(반복)", "I am on a diet"] },
+      { date: "2026-03-19", corrections: 9, topics: ["be supposed to", "prefer A to B", "이중 비교급", "relieve stress"] },
+      { date: "2026-03-20", corrections: 16, topics: ["must have+p.p.", "이중 최상급(most biggest)", "the Philippines", "복수형(beaches)", "go snorkeling", "live vs leave", "on time"] },
+      { date: "2026-03-23", corrections: 10, topics: ["have been+-ing(현재완료진행)", "자동사 vs 수동태", "enjoy+-ing", "복수형(snouts/genres)", "animated vs animation", "시제 일관성"] },
+      { date: "2026-03-24", corrections: 9, topics: ["be sure+that", "makes me want to", "succeed vs success", "free vs freely", "much vs many", "어순(수량사→형용사)", "people(복수)", "who for people"] },
+      { date: "2026-03-25", corrections: 14, topics: ["no longer+A", "관사 a/the 반복", "수일치(lives)", "전치사 in", "시제(wasn't/wanted)", "spend vs have", "concerned about -ing", "ingredient-based"] },
+      { date: "2026-03-30", corrections: 8, topics: ["Can I get+A 표현", "try not to 어순 반복", "부사 위치(always) 반복", "관사 a/some 구분", "전치사(has been to/on+날짜)", "시제 일관성(has taken)", "동명사 주어"] },
+      { date: "2026-03-31", corrections: 12, topics: ["How about+A 패턴", "수일치(fits)", "현재완료진행(have been cooking/learning)", "to+동사원형(to shop)", "how about+gerund(having)", "관사 반복(a gray coat)", "과거시제(had/was)", "in silence(전치사)", "병렬구조", "formal look vs look formal"] }
+    ],
+    exercises: [
+      { date: "2026-03-06", score: 4, almost: 3, wrong: 3, total: 10 },
+      { date: "2026-03-09", score: 5, almost: 1, wrong: 4, total: 10 },
+      { date: "2026-03-10", score: 2, almost: 3, wrong: 5, total: 10 },
+      { date: "2026-03-11", score: 4, almost: 4, wrong: 2, total: 10 },
+      { date: "2026-03-12", score: 5, almost: 2, wrong: 3, total: 10 },
+      { date: "2026-03-13", score: 2, almost: 6, wrong: 2, total: 10 },
+      { date: "2026-03-16", score: 2, almost: 4, wrong: 4, total: 10 },
+      { date: "2026-03-19", score: 5, almost: 2, wrong: 3, total: 10 },
+      { date: "2026-03-25", score: 3, almost: 5, wrong: 2, total: 10 },
+      { date: "2026-03-30", score: 4, almost: 4, wrong: 2, total: 10 }
+    ],
+    errorPatterns: [
+      { category: "복수형 / 관사", severity: "high", count: 42 },
+      { category: "to+동사원형 vs 동명사", severity: "high", count: 10 },
+      { category: "시제", severity: "mid", count: 21 },
+      { category: "전치사", severity: "high", count: 25 },
+      { category: "명사/동사/형용사", severity: "mid", count: 11 },
+      { category: "be동사 누락", severity: "high", count: 9 },
+      { category: "이중 비교급", severity: "high", count: 6 },
+      { category: "어순", severity: "mid", count: 8 },
+      { category: "부사 위치", severity: "mid", count: 5 },
+      { category: "would rather", severity: "mid", count: 3 },
+      { category: "관계대명사", severity: "mid", count: 3 },
+      { category: "주어-동사 수일치", severity: "high", count: 7 },
+      { category: "스펠링", severity: "mid", count: 10 },
+      { category: "famous vs popular", severity: "mid", count: 1 },
+      { category: "almost vs most of", severity: "mid", count: 2 },
+      { category: "before+ago 중복", severity: "mid", count: 1 },
+      { category: "this day vs these days", severity: "mid", count: 3 },
+      { category: "go/do vs play", severity: "mid", count: 1 },
+      { category: "자동사 vs 수동태", severity: "mid", count: 1 },
+      { category: "much vs many", severity: "mid", count: 1 }
+    ],
+    feedback: [
+      { date: "2026-03-31", text: "3/31 영어: How about+A 패턴 학습. 수일치(fits) 교정. 현재완료진행(have been cooking/learning) 반복 — 최근 활동 표현 시 시제 주의. to+동사원형 반복(to shop, how about having). 관사 누락 반복(a gray coat, a padding jacket). 과거시제(had/was) 반복. in silence(with X) 전치사, 병렬구조(cleaning), formal look vs look formal 교정. 선생님 피드백: 자신감 있게 말하기, 목소리 크게." },
+      { date: "2026-03-30", text: "3/30 영어: Can I get+A 요청 표현 학습. try not to 어순 반복. 부사 위치(always) 반복. 전치사 누락(has been to, on+날짜). 시제 일관성(has taken). 동명사 주어(Drinking...). intimate gathering. [연습 4/10] 관사 a 누락 반복(a cafe), 시제 통일(has taken) 미적용, 전치사 of(photo of), a lot of 표현 오류. on+날짜/always 부사 위치/a drink 정답! prefer+목적어 직접(to 불필요), no longer 누락." },
+      { date: "2026-03-25", text: "3/25 영어: no longer+A 학습. 관사 a/the 여전히 반복(a normal day, the hospital). 수일치(lives), 전치사 in 반복. 시제(wasn't, wanted) 과거시제 반복. spend→had a hard time 새 패턴. concerned about losing(동명사) 구조. ingredient-based 수식어 패턴. 직업/AI 주제에서 적극적 발화. [연습 3/10] 시제 반복(want→wanted), the hospital 관사 반복, spend→had 혼동, source→sauce 스펠링, adopt→adjust 어휘 혼동. 관계절+수동태(that are needed) 부분 정답." },
+      { date: "2026-03-24", text: "3/24 영어: be sure+that 확신 표현 학습. makes me want to 패턴. succeed vs success(명사/동사) 반복 패턴. free→freely(형용사/부사) 구분. people 이미 복수(peoples X). much vs many 새 패턴(불가산명사). 수량사→형용사 어순(one good thing). 문장 구조 전체 교정 필요한 발화 다수." },
+      { date: "2026-03-23", text: "3/23 영어: have been+-ing 현재완료진행 학습. 자동사 vs 수동태 새 패턴(was not changed→did not change). enjoy+-ing 교정. 복수형 여전히 반복(snouts, genres). animated vs animation(형용사/명사) 구분. 시제 일관성(have been hiking→went hiking). 음악/영화 주제에서 적극적 발화." },
+      { date: "2026-03-20", text: "3/20 영어: must have+p.p. 학습. 이중 최상급(most biggest) 새 패턴. the Philippines(the 필수) 학습. 복수형/관사 여전히 반복(beaches, a boat). go snorkeling(play X). live vs leave 혼동, on time(at time X). try not to 어순 교정." },
+      { date: "2026-03-19", text: "3/19 영어: be supposed to 정확하게 사용. 이중 비교급/be동사 누락 여전히 반복." },
+      { date: "2026-03-18", text: "have never+p.p. 표현 빠르게 습득. 복수형 반복(cookie→cookies, other→others). has/have 수일치(She has) 교정. 부사 위치(that much는 뒤에) 교정. 형용사/부사 혼동 새 패턴(extreme vs extremely). 전치사 to 반복(travel to Shanghai). I am on a diet vs going on a diet 구분 학습. 영화/모험 주제에서 장문 발화." },
+      { date: "2026-03-16", text: "What kind of+A 패턴 학습. this day→these days 3회째 반복! 관사 a 누락(a subway station), 전치사 on weekend 반복 실수. send+to 구조, 어순(a house with a large kitchen) 교정. on foot, convenient 표현 학습. 과일/집/다이어트 주제에서 적극적 대화." },
+      { date: "2026-03-13", text: "not meant to / didn't mean to 핵심 표현 학습. be동사 누락 3회 반복(I'm like→I like, not to be late, was in college). 전치사 누락(lies to me, go to an appointment) 2회. 복수형(classes, kinds of instruments, a song) 3회 반복. to+동사원형(easy to sing). almost vs most of 혼동, before+ago 중복 등 새 패턴 발견. go on a diet 표현 학습." },
+      { date: "2026-03-12", text: "can't wait+to 표현 학습. like+-ing 오류 4회 반복(reading/walking/going/go camping). go+활동에 to 불필요(went to camping→went camping) 2회. have been to go→have gone/went 시제혼동. 비교급 어순(like more spring→like spring more). with a view of 전치사구 학습. always+현재시제 교정. 계절/피크닉/다이어트 주제에서 적극적 대화." },
+      { date: "2026-03-11", text: "What makes+A 패턴 학습. 관사 누락(a younger brother) 반복, 현재 습관→현재시제(see/forget) 3회 반복, 이중 비교급(more short→shorter, more higher→higher) 3건 새 패턴 발견. 복수형(desserts, languages) 여전히 반복. 디저트/언어학습 주제에서 적극적 발화." },
+      { date: "2026-03-10", text: "How long have you been ~ing 패턴 자연스럽게 활용. to+-ing 오류 2회 반복 주의. 복수형 실수 여전히 반복 (stamps, benefits). 여행 주제에서 자신감 있는 표현." },
+      { date: "2026-03-09", text: "적극적으로 참여해서 좋았음. 자신감을 갖고 말할 것 — 답변할 때 주저하는 경향. 기본 문법 복습 필요: 단수/복수형, 주어-동사 수일치." },
+      { date: "2026-03-06", text: "the 사용 주의: 특정한 것만 the. 명사 vs 동사 vs 형용사 구분 연습. there is no A 표현 잘 활용함." },
+      { date: "2026-03-03", text: "would rather + 동사원형 패턴 학습. 전치사, 복수형, be동사 누락 교정." }
+    ]
+  },
+  japanese: {
+    lessons: [
+      { date: "2026-03-06", corrections: 10, topics: ["～わけない", "ペラペラ/ピンキリ", "조사 を/の", "수동형"] },
+      { date: "2026-03-09", corrections: 8, topics: ["相当", "~なんて", "자동사/타동사", "~しないといけない"] },
+      { date: "2026-03-10", corrections: 8, topics: ["～向け", "止まる vs 止める", "短時間 vs 短期間", "含める vs 含まれる"] },
+      { date: "2026-03-11", corrections: 2, topics: ["たまたま", "ソリ vs 馬", "買えた vs 買えなかった"] },
+      { date: "2026-03-12", corrections: 13, topics: ["案外 vs 意外な", "案外に→案外", "~やすい", "食べよう(의지형)", "プロテイン", "~そうで", "編み物어휘"] },
+      { date: "2026-03-13", corrections: 10, topics: ["～を通じて/通して", "好き+が", "遠回し vs 遠回り", "学ぶて형", "活かす+に", "助数詞", "語学研修", "血糖値"] },
+      { date: "2026-03-16", corrections: 12, topics: ["徐々に", "速度を落とす", "増やす vs 増える", "～するしかない", "旅行に行く", "友達がいる", "毎朝(に不要)", "環境が変わる"] },
+      { date: "2026-03-18", corrections: 9, topics: ["じっと+動詞", "い形容詞過去(痛かった)", "な形容詞+だ(大丈夫だけど)", "まだ+ていない", "朝になるまで", "ために+辞書形", "売り切れ/お化け屋敷", "さっさと"] },
+      { date: "2026-03-19", corrections: 10, topics: ["ついに", "をかけて", "厳しい vs ひどい", "歯を磨く"] },
+      { date: "2026-03-20", corrections: 16, topics: ["最も(최상급)", "한자 어휘 다수(成績/退勤/保護/皮膚科/公開/滝)", "외래어(フリー/ルール)", "조사(目的で/に通う)", "五段動詞ない形"] },
+      { date: "2026-03-23", corrections: 7, topics: ["正直(に/な)", "そうだ vs みたい/ようだ", "使役形 vs 受身形", "命令形", "ガッカリする", "課題評価(受動)"] },
+      { date: "2026-03-24", corrections: 15, topics: ["ようやく", "한자 어휘 다수(風邪/治る/救助/手術/犯人/逮捕/同然/心配/用事)", "一段動詞過去形(出た)", "しか vs ばかり", "助数詞(匹)", "やりやすい", "외래어(キャベツ)"] },
+      { date: "2026-03-25", corrections: 7, topics: ["早めに", "가능형(食べられなくて)", "자타동사(開いている)", "な형용사+だ(反復)", "人がいる(反復)", "乗る+に(反復)", "安全vs安心"] },
+      { date: "2026-03-30", corrections: 8, topics: ["～ば～ほど 문법", "い형용사 활용(遅すぎる/楽しく)", "조사(家から/それに)", "いいの否定(よくない)", "ば형 활용 복습"] },
+      { date: "2026-03-31", corrections: 10, topics: ["大した 문법", "조사(の vs に 명사수식, が vs で 주어)", "한자 읽기(家賃/傷)", "～じゃないですか(감탄반어)", "～って言ってた(인용과거)", "受け止める/役立つ/苦しめる 어휘", "褒められる/謙遜/大げさ"] }
+    ],
+    exercises: [
+      { date: "2026-03-06", score: 1, almost: 8, wrong: 1, total: 10 },
+      { date: "2026-03-10", score: 2, almost: 6, wrong: 2, total: 10 },
+      { date: "2026-03-11", score: 5, almost: 2, wrong: 3, total: 10 },
+      { date: "2026-03-12", score: 3, almost: 3, wrong: 3, total: 9 },
+      { date: "2026-03-13", score: 3, almost: 2, wrong: 5, total: 10 },
+      { date: "2026-03-16", score: 2, almost: 4, wrong: 4, total: 10 },
+      { date: "2026-03-19", score: 7, almost: 1, wrong: 2, total: 10 },
+      { date: "2026-03-25", score: 5, almost: 4, wrong: 1, total: 10 },
+      { date: "2026-03-30", score: 3, almost: 5, wrong: 2, total: 10 }
+    ],
+    errorPatterns: [
+      { category: "한자 어휘 혼동", severity: "high", count: 37 },
+      { category: "관용표현", severity: "mid", count: 38 },
+      { category: "가능형 / 수동형", severity: "high", count: 11 },
+      { category: "조사 (を/の/が/に)", severity: "high", count: 25 },
+      { category: "자동사 / 타동사", severity: "high", count: 5 },
+      { category: "부사 vs 형용동사", severity: "mid", count: 2 },
+      { category: "의지형/활용", severity: "mid", count: 4 },
+      { category: "~ている 상태형", severity: "mid", count: 1 },
+      { category: "명사 + わけない", severity: "mid", count: 1 },
+      { category: "助数詞 누락", severity: "mid", count: 2 },
+      { category: "い형용사 활용", severity: "mid", count: 4 },
+      { category: "な형용사 + だ", severity: "mid", count: 2 },
+      { category: "五段動詞 ない形", severity: "mid", count: 1 },
+      { category: "외래어 발음", severity: "mid", count: 4 },
+      { category: "そうだ vs みたい/ようだ", severity: "mid", count: 1 },
+      { category: "使役形 vs 受身形", severity: "mid", count: 1 },
+      { category: "しか vs ばかり", severity: "mid", count: 1 },
+      { category: "一段動詞 過去形", severity: "mid", count: 1 }
+    ],
+    feedback: [
+      { date: "2026-03-31", text: "3/31 일본어: 大した 문법 학습(大したことない/大したものだ). 조사 교정(の vs に 명사수식, が vs で 주어/くれる). 한자 읽기 혼동(実家→家賃, 押し→傷). ～じゃないですか 감탄반어, ～って言ってた 인용과거 교정. 受け止める/役立つ/苦しめる 추상 어휘 학습. 褒められる(수동형)/謙遜/大げさ 새 어휘. 전체적으로 대화 소통 양호." },
+      { date: "2026-03-30", text: "3/30 일본어: ～ば～ほど 문법 학습. い형용사 활용(遅すぎる/楽しく). 조사(家から/それに). よくない 교정. [연습 3/10] ～ば～ほど/家から/よくない 정답! 楽しく(くて X), ことは(のは X), おいしい(い누락), 勉強を始める(を누락). はまる≠落ち込む 어휘 혼동, 好き≠良い 구분, 大丈夫だけど(た→だ 반복!)." },
+      { date: "2026-03-25", text: "3/25 일본어: 早めに(일찍) 학습. 가능형(食べられなくて) 교정. 자타동사(開いている vs 開けている) 교정. な형용사+だ(大丈夫だけど) 3회째 반복! 人がいる(ある X) 반복. 乗る+に(を X) 반복. 安全 vs 安心 어휘 구분. 杯 수사변화 학습. 三徹/せっかち/福利厚生 새 어휘. [연습 5/10] 大丈夫だけど 드디어 정답(3회 반복 후 교정!). 開いている→開けている 여전히 혼동 반복. ために를(を→の) 조사 오류. コーヒー 장음 누락. 急いでいます 활용 오류." },
+      { date: "2026-03-24", text: "3/24 일본어: ようやく(드디어) 학습. 한자 어휘 혼동 9건(風邪/治る/救助/手術/犯人/逮捕/同然/心配/用事) — 역대 최다 갱신. 一段動詞過去形(出った→出た) 새 패턴. しか vs ばかり 구분. 助数詞 匹(ひき/ぴき/びき) 변화. やりやすい 활용. 太陽は昇る(起きるX) 어휘 교정." },
+      { date: "2026-03-23", text: "3/23 일본어: 正直(に/な) 사용법 학습. そうだ vs みたい/ようだ 중요 구분(과거실제=みたい, 미래추측=そうだ). 使役形(おこらせる) vs 受身形(怒られる) 구분. 命令形 복습(食べろ/しろ/来い). ガッカリする(실망), 課題評価をされている(受動) 교정." },
+      { date: "2026-03-20", text: "3/20 일본어: 最も 최상급 학습. 한자 어휘 혼동 8건(成績/退勤/保護/皮膚科/公開/滝/ロール/プリ) — 역대 최다. 조사(目的で, ~に通う) 교정. 五段動詞ない형(ひかない) 교정. 肌 vs 皮膚 구분, 분수읽기(4分の1) 학습. 영화/미용/계절음식 주제에서 적극적 발화." },
+      { date: "2026-03-19", text: "3/19 일본어: ついに 자연스럽게 응용. を조사, 歯を磨く 등 어휘 학습 필요." },
+      { date: "2026-03-18", text: "じっと+動詞 표현 학습(じっとしている/見る/立つ). い형容사 과거형(痛い→痛かった) 새 패턴. な형용사+だ(大丈夫だけど) 교정. 朝になるまで(とき不要), ために+辞書形 교정. 売り切れ/お化け屋敷/注射を打つ/さっさと 어휘 다수. 医療ドラマ 장면 일본어 묘사 시도 → 선생님 칭찬." },
+      { date: "2026-03-16", text: "徐々に 패턴 학습. 속도를 落とす/量を増やす 세트표현 학습. 조사 혼동 3건(旅行にX를, 友達がいるXある, 毎朝にX). 한자어휘(記憶→寒さ, マイナン→毎年, 帰る→変わる) 3건. 자타동사(増やす/増える) 구분. NZ여행 주제에서 적극적 발화." },
+      { date: "2026-03-13", text: "～を通じて/通して 구분 학습. 好き+が 조사 교정, 遠回し vs 遠回り 어휘 혼동 교정. 学ぶ→학んで て형 오류, 仕事に活かす 조사 교정. 助数詞(60日) 누락, 語学研修/血糖値 한자어휘 혼동 3건. 전체 교정 10건으로 다양한 패턴 노출." },
+      { date: "2026-03-12", text: "案外(부사) 학습. 案外に→案外 교정, 意外な(명사수식) 구분 학습. ~やすい 활용법 학습. 편み物/ダイエット 관련 어휘 다수 습득. 긴 문장으로 다이어트/프로테인 상품 설명 → 선생님 칭찬. 案外 활용 문장들 전반적으로 우수." },
+      { date: "2026-03-11", text: "たまたま 표현 활용 능숙. 롤플레이/번역/자유대화 모두 자연스러움. 馬→ソリ 어휘 혼동, 買えなかった→買えた 문맥 판단 실수 2건. JLPT N2 합격 경험 공유하며 자신감 있는 발화." },
+      { date: "2026-03-10", text: "向け 문법 빠르게 이해하고 활용. 자동사/타동사 혼동 반복 (止まる vs 止める, 含める vs 含まれる). 短時間 vs 短期間 구분 학습. 여행 어휘 보강 필요." },
+      { date: "2026-03-09", text: "相当な+명사 구조 빠르게 이해. 자동사/타동사 구분 (始まる vs 始める) 연습 필요. ~ている 상태형 활용. 어휘 정확성 (料理教室, 若い時) 주의." },
+      { date: "2026-03-06", text: "わけない 문법을 빠르게 이해함. 조사 の/를 혼동 주의. 수동형 활용 (含まれる, 愛される) 연습 필요. カタカナ 외래어 발음 연습 권장." }
+    ]
+  }
+};
+
+// ============================================================
+// 렌더링 로직
+// ============================================================
+let currentTab = 'english';
+let calendarMonth = new Date(2026, 2, 1); // 2026-03
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    if ((tab === 'english' && t.textContent === 'English') ||
+        (tab === 'japanese' && t.textContent === '日本語')) {
+      t.classList.add('active');
+    }
+  });
+  render();
+}
+
+function render() {
+  const data = STUDY_DATA[currentTab];
+  const today = new Date(2026, 2, 24);
+  const container = document.getElementById('dashboard-content');
+
+  // 통계 계산
+  const totalLessons = data.lessons.length;
+  const avgScore = data.exercises.length > 0
+    ? Math.round(data.exercises.reduce((s, e) => s + (e.score / e.total * 100), 0) / data.exercises.length)
+    : 0;
+
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const thisMonthDays = new Set();
+  data.lessons.forEach(l => {
+    const d = new Date(l.date);
+    if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) thisMonthDays.add(l.date);
+  });
+  data.exercises.forEach(e => {
+    const d = new Date(e.date);
+    if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) thisMonthDays.add(e.date);
+  });
+
+  // streak 계산 (주말은 자동 스킵 — 평일만 카운트)
+  const allDates = new Set([
+    ...data.lessons.map(l => l.date),
+    ...data.exercises.map(e => e.date)
+  ]);
+  let streak = 0;
+  let checkDate = new Date(today);
+  while (true) {
+    const dow = checkDate.getDay(); // 0=일, 6=토
+    if (dow === 0 || dow === 6) {
+      checkDate.setDate(checkDate.getDate() - 1);
+      continue;
+    }
+    const ds = checkDate.toISOString().slice(0, 10);
+    if (allDates.has(ds)) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  // 실수 패턴 최대값
+  const maxCount = Math.max(...data.errorPatterns.map(e => e.count), 1);
+
+  container.innerHTML = `
+    <!-- 요약 카드 -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="value">${totalLessons}</div>
+        <div class="label">총 수업 횟수</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">${data.exercises.length > 0 ? avgScore + '%' : '-'}</div>
+        <div class="label">연습문제 평균</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">${thisMonthDays.size}</div>
+        <div class="label">이번 달 학습일</div>
+      </div>
+      <div class="summary-card">
+        <div class="value" style="color: ${streak > 0 ? 'var(--gold)' : 'var(--text)'}">${streak}일</div>
+        <div class="label">연속 streak</div>
+      </div>
+    </div>
+
+    <!-- 출석 캘린더 -->
+    <div class="calendar-section">
+      <div class="calendar-header">
+        <h2>출석 캘린더</h2>
+        <div class="calendar-nav">
+          <button onclick="navMonth(-1)">◀</button>
+          <span id="cal-month-label"></span>
+          <button onclick="navMonth(1)">▶</button>
+        </div>
+      </div>
+      <div class="calendar-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <span class="leg-lesson">수업</span>
+        <span class="leg-exercise">연습</span>
+        <span class="leg-both">둘 다</span>
+      </div>
+    </div>
+
+    <!-- 실수 패턴 -->
+    <div class="chart-section">
+      <h2>실수 패턴</h2>
+      <div class="bar-chart" id="error-chart">
+        ${data.errorPatterns
+          .sort((a, b) => b.count - a.count)
+          .map(e => `
+            <div class="bar-row">
+              <span class="bar-label">${e.category}</span>
+              <div class="bar-track">
+                <div class="bar-fill ${e.severity}" style="width: ${(e.count / maxCount) * 100}%">${e.count}</div>
+              </div>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+
+    <!-- 연습문제 성적 -->
+    <div class="chart-section">
+      <h2>연습문제 성적</h2>
+      ${data.exercises.length > 0 ? renderStackChart(data.exercises) : '<p style="color:var(--text-dim);font-size:0.9em;">아직 연습문제 데이터가 없습니다.</p>'}
+    </div>
+
+    <!-- 최근 피드백 -->
+    <div class="feedback-section">
+      <h2>최근 피드백</h2>
+      ${data.feedback.map(f => `
+        <div class="feedback-item">
+          <div class="feedback-date">${f.date}</div>
+          <div class="feedback-text">${f.text}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const data = STUDY_DATA[currentTab];
+  const today = new Date(2026, 2, 24);
+  const year = calendarMonth.getFullYear();
+  const month = calendarMonth.getMonth();
+
+  const lessonDates = new Set(data.lessons.map(l => l.date));
+  const exerciseDates = new Set(data.exercises.map(e => e.date));
+
+  document.getElementById('cal-month-label').textContent =
+    `${year}년 ${month + 1}월`;
+
+  const grid = document.getElementById('cal-grid');
+  const days = ['월', '화', '수', '목', '금', '토', '일'];
+  let html = days.map(d => `<div class="cal-day-label">${d}</div>`).join('');
+
+  const firstDay = new Date(year, month, 1);
+  let startDay = firstDay.getDay() - 1;
+  if (startDay < 0) startDay = 6;
+
+  for (let i = 0; i < startDay; i++) {
+    html += '<div class="cal-cell empty"></div>';
+  }
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isLesson = lessonDates.has(ds);
+    const isExercise = exerciseDates.has(ds);
+    const isToday = ds === today.toISOString().slice(0, 10);
+
+    let cls = 'cal-cell';
+    if (isLesson && isExercise) cls += ' both';
+    else if (isLesson) cls += ' lesson';
+    else if (isExercise) cls += ' exercise';
+    if (isToday) cls += ' today';
+
+    html += `<div class="${cls}">${d}</div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function navMonth(dir) {
+  calendarMonth.setMonth(calendarMonth.getMonth() + dir);
+  renderCalendar();
+}
+
+function renderStackChart(exercises) {
+  const maxTotal = Math.max(...exercises.map(e => e.total));
+  const barH = 120;
+
+  return `
+    <div class="stack-chart">
+      ${exercises.map(e => {
+        const correctH = (e.score / maxTotal) * barH;
+        const almostH = (e.almost / maxTotal) * barH;
+        const wrongH = (e.wrong / maxTotal) * barH;
+        return `
+          <div class="stack-col">
+            <div class="stack-segment correct" style="height:${correctH}px">${e.score}</div>
+            <div class="stack-segment almost" style="height:${almostH}px">${e.almost}</div>
+            <div class="stack-segment wrong" style="height:${wrongH}px">${e.wrong}</div>
+            <div class="stack-label">${e.date.slice(5)}<br>${e.score}/${e.total}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div class="stack-legend">
+      <span class="leg-correct">정답</span>
+      <span class="leg-almost">거의 정답</span>
+      <span class="leg-wrong">오답</span>
+    </div>
+  `;
+}
+
+// 초기 렌더
+render();
+</script>
+</body>
+</html>
